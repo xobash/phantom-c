@@ -1,0 +1,9 @@
+{
+  "confirmDangerous": true,
+  "dangerousAcknowledgement": "I_UNDERSTAND_NO_ROLLBACK",
+  "storeSelections": ["VS Code"],
+  "tweaks": ["disable-telemetry"],
+  "features": ["wsl"],
+  "fixes": ["flush-dns"],
+  "updateMode": "Security"
+}

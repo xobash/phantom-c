@@ -1,0 +1,6027 @@
+[
+  {
+    "category": "Browsers",
+    "displayName": "Brave",
+    "wingetId": "Brave.Brave",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://brave.com/",
+    "tags": [
+      "browsers"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Privacy-focused Chromium-based web browser with built-in ad and tracker blocking."
+  },
+  {
+    "category": "Browsers",
+    "displayName": "Chrome",
+    "wingetId": "Google.Chrome",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.google.com/chrome/",
+    "tags": [
+      "browsers"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Google's Chromium-based web browser."
+  },
+  {
+    "category": "Browsers",
+    "displayName": "Chromium",
+    "wingetId": "Chromium.Chromium",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.chromium.org/",
+    "tags": [
+      "browsers"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Open-source upstream of Chrome and Edge."
+  },
+  {
+    "category": "Browsers",
+    "displayName": "Edge",
+    "wingetId": "Microsoft.Edge",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.microsoft.com/edge",
+    "tags": [
+      "browsers"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Microsoft's Chromium-based web browser, bundled with Windows."
+  },
+  {
+    "category": "Browsers",
+    "displayName": "Falkon",
+    "wingetId": "KDE.Falkon",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.falkon.org/",
+    "tags": [
+      "browsers"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Lightweight QtWebEngine browser developed by KDE."
+  },
+  {
+    "category": "Browsers",
+    "displayName": "Firefox",
+    "wingetId": "Mozilla.Firefox",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.mozilla.org/firefox/",
+    "tags": [
+      "browsers"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Mozilla's independent open-source web browser."
+  },
+  {
+    "category": "Browsers",
+    "displayName": "Firefox ESR",
+    "wingetId": "Mozilla.Firefox.ESR",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.mozilla.org/firefox/enterprise/",
+    "tags": [
+      "browsers"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Firefox Extended Support Release for organisations that need a slower release cadence."
+  },
+  {
+    "category": "Browsers",
+    "displayName": "Floorp",
+    "wingetId": "Ablaze.Floorp",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://floorp.app/",
+    "tags": [
+      "browsers"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Privacy-focused Firefox fork from Ablaze."
+  },
+  {
+    "category": "Browsers",
+    "displayName": "LibreWolf",
+    "wingetId": "LibreWolf.LibreWolf",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://librewolf.net/",
+    "tags": [
+      "browsers"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Independent Firefox fork hardened for privacy out of the box."
+  },
+  {
+    "category": "Browsers",
+    "displayName": "Mullvad Browser",
+    "wingetId": "MullvadVPN.MullvadBrowser",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://mullvad.net/en/browser",
+    "tags": [
+      "browsers"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Privacy-hardened Firefox fork developed with the Tor Project."
+  },
+  {
+    "category": "Browsers",
+    "displayName": "PaleMoon",
+    "wingetId": "MoonchildProductions.PaleMoon",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.palemoon.org/",
+    "tags": [
+      "browsers"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Goanna-based browser forked from an older Firefox lineage."
+  },
+  {
+    "category": "Browsers",
+    "displayName": "Thorium Browser AVX2",
+    "wingetId": "Alex313031.Thorium.AVX2",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://thorium.rocks/",
+    "tags": [
+      "browsers"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Performance-tuned Chromium fork compiled with AVX2 and additional patches."
+  },
+  {
+    "category": "Browsers",
+    "displayName": "Tor Browser",
+    "wingetId": "TorBrowser.TorBrowser",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.torproject.org/",
+    "tags": [
+      "browsers"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Firefox-based browser that routes traffic through the Tor network for anonymity."
+  },
+  {
+    "category": "Browsers",
+    "displayName": "Ungoogled",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://github.com/ungoogled-software/ungoogled-chromium",
+    "tags": [
+      "browsers"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": "Chromium with all Google service integration removed."
+  },
+  {
+    "category": "Browsers",
+    "displayName": "Vivaldi",
+    "wingetId": "Vivaldi.Vivaldi",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://vivaldi.com/",
+    "tags": [
+      "browsers"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Highly customisable Chromium-based browser by ex-Opera engineers."
+  },
+  {
+    "category": "Browsers",
+    "displayName": "Waterfox",
+    "wingetId": "Waterfox.Waterfox",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.waterfox.net/",
+    "tags": [
+      "browsers"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Long-running Firefox fork that retains support for legacy XUL extensions."
+  },
+  {
+    "category": "Browsers",
+    "displayName": "Zen Browser",
+    "wingetId": "Zen-Team.Zen-Browser",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://zen-browser.app/",
+    "tags": [
+      "browsers"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Modern Firefox-based browser focused on productivity and aesthetics."
+  },
+  {
+    "category": "Communications",
+    "displayName": "Beeper",
+    "wingetId": "Beeper.Beeper",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.beeper.com/",
+    "tags": [
+      "communications"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Unified chat client that bridges multiple networks (iMessage, WhatsApp, Signal, etc.)."
+  },
+  {
+    "category": "Communications",
+    "displayName": "Betterbird",
+    "wingetId": "Betterbird.Betterbird",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.betterbird.eu/",
+    "tags": [
+      "communications"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Community fork of Thunderbird with extra fixes and features."
+  },
+  {
+    "category": "Communications",
+    "displayName": "Chatterino",
+    "wingetId": "ChatterinoTeam.Chatterino",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.chatterino.com/",
+    "tags": [
+      "communications"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Desktop chat client for Twitch with support for FrankerFaceZ/BTTV."
+  },
+  {
+    "category": "Communications",
+    "displayName": "Discord",
+    "wingetId": "Discord.Discord",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://discord.com/",
+    "tags": [
+      "communications"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Voice, video and text chat app popular with gaming and developer communities."
+  },
+  {
+    "category": "Communications",
+    "displayName": "Element",
+    "wingetId": "Element.Element",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://element.io/",
+    "tags": [
+      "communications"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Reference Matrix client for federated, end-to-end encrypted chat."
+  },
+  {
+    "category": "Communications",
+    "displayName": "Ferdium",
+    "wingetId": "Ferdium.Ferdium",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://ferdium.org/",
+    "tags": [
+      "communications"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Open-source successor to Franz/Ferdi: run multiple messengers in a single window."
+  },
+  {
+    "category": "Communications",
+    "displayName": "Hexchat",
+    "wingetId": "HexChat.HexChat",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://hexchat.github.io/",
+    "tags": [
+      "communications"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Cross-platform IRC client based on XChat."
+  },
+  {
+    "category": "Communications",
+    "displayName": "Jami",
+    "wingetId": "SFLinux.Jami",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://jami.net/",
+    "tags": [
+      "communications"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Peer-to-peer encrypted messenger and conferencing tool from Savoir-faire Linux."
+  },
+  {
+    "category": "Communications",
+    "displayName": "Linphone",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "communications"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Communications",
+    "displayName": "Qtox",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "communications"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Communications",
+    "displayName": "Revolt",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "communications"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Communications",
+    "displayName": "Session",
+    "wingetId": "Oxen.Session",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://getsession.org/",
+    "tags": [
+      "communications"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Decentralised end-to-end encrypted messenger built on the Oxen network."
+  },
+  {
+    "category": "Communications",
+    "displayName": "Signal",
+    "wingetId": "OpenWhisperSystems.Signal",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://signal.org/",
+    "tags": [
+      "communications"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "End-to-end encrypted messenger run by the non-profit Signal Foundation."
+  },
+  {
+    "category": "Communications",
+    "displayName": "Slack",
+    "wingetId": "Slack.Slack",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://slack.com/",
+    "tags": [
+      "communications"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Team chat and collaboration platform."
+  },
+  {
+    "category": "Communications",
+    "displayName": "Teams",
+    "wingetId": "Microsoft.Teams",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.microsoft.com/microsoft-teams",
+    "tags": [
+      "communications"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Microsoft's chat, meetings and collaboration client."
+  },
+  {
+    "category": "Communications",
+    "displayName": "Telegram",
+    "wingetId": "Telegram.Telegram",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://telegram.org/",
+    "tags": [
+      "communications"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Cloud-based messenger with optional end-to-end encrypted secret chats."
+  },
+  {
+    "category": "Communications",
+    "displayName": "Thunderbird",
+    "wingetId": "Mozilla.Thunderbird",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.thunderbird.net/",
+    "tags": [
+      "communications"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Mozilla's open-source email, calendar and chat client."
+  },
+  {
+    "category": "Communications",
+    "displayName": "Unigram",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "communications"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Communications",
+    "displayName": "Vesktop",
+    "wingetId": "Vencord.Vesktop",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://github.com/Vencord/Vesktop",
+    "tags": [
+      "communications"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Custom Discord desktop client bundling Vencord patches."
+  },
+  {
+    "category": "Communications",
+    "displayName": "Viber",
+    "wingetId": "Viber.Viber",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.viber.com/",
+    "tags": [
+      "communications"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Cross-platform voice/video/text messenger."
+  },
+  {
+    "category": "Communications",
+    "displayName": "Zoom",
+    "wingetId": "Zoom.Zoom",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://zoom.us/",
+    "tags": [
+      "communications"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Video conferencing client."
+  },
+  {
+    "category": "Communications",
+    "displayName": "Zulip",
+    "wingetId": "Zulip.Zulip",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://zulip.com/",
+    "tags": [
+      "communications"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Open-source team chat with topic-based threading."
+  },
+  {
+    "category": "Development",
+    "displayName": "Aegisub",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Development",
+    "displayName": "Amazon Corretto 11 (LTS)",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Development",
+    "displayName": "Amazon Corretto 17 (LTS)",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Development",
+    "displayName": "Amazon Corretto 21 (LTS)",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Development",
+    "displayName": "Amazon Corretto 25 (LTS)",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Development",
+    "displayName": "Amazon Corretto 8 (LTS)",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Development",
+    "displayName": "Anaconda",
+    "wingetId": "Anaconda.Anaconda3",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.anaconda.com/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Scientific Python distribution including conda, NumPy, Jupyter and more."
+  },
+  {
+    "category": "Development",
+    "displayName": "Black",
+    "wingetId": "",
+    "chocoId": "",
+    "pipId": "black",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "pip",
+      "python",
+      "formatter"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "pip"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Development",
+    "displayName": "Clink",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Development",
+    "displayName": "CMake",
+    "wingetId": "Kitware.CMake",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://cmake.org/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Cross-platform build-system generator."
+  },
+  {
+    "category": "Development",
+    "displayName": "Code With Me",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Development",
+    "displayName": "DaxStudio",
+    "wingetId": "DaxStudio.DaxStudio",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://daxstudio.org/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Tool for authoring and tuning DAX queries against Power BI / Analysis Services."
+  },
+  {
+    "category": "Development",
+    "displayName": "Docker Desktop",
+    "wingetId": "Docker.DockerDesktop",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.docker.com/products/docker-desktop/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "GUI for the Docker engine on Windows, including a built-in Linux VM."
+  },
+  {
+    "category": "Development",
+    "displayName": "dotnet-ef",
+    "wingetId": "",
+    "chocoId": "",
+    "dotNetToolId": "dotnet-ef",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "dotnet",
+      "tool",
+      "entity-framework"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "dotnet"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Development",
+    "displayName": "Eclipse Temurin",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Development",
+    "displayName": "ESLint",
+    "wingetId": "",
+    "chocoId": "",
+    "npmId": "eslint",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "npm",
+      "lint"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "npm"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Development",
+    "displayName": "Fast Node Manager",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Development",
+    "displayName": "Fcitx",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Development",
+    "displayName": "Git",
+    "wingetId": "Git.Git",
+    "chocoId": "git",
+    "silentArgs": "",
+    "homepage": "https://git-scm.com/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget",
+      "choco"
+    ],
+    "description": "Distributed version-control system."
+  },
+  {
+    "category": "Development",
+    "displayName": "Git Butler",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Development",
+    "displayName": "Git Extensions",
+    "wingetId": "GitExtensionsTeam.GitExtensions",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://gitextensions.github.io/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Graphical Git client for Windows."
+  },
+  {
+    "category": "Development",
+    "displayName": "GitHub CLI",
+    "wingetId": "GitHub.cli",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://cli.github.com/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Command-line interface for GitHub."
+  },
+  {
+    "category": "Development",
+    "displayName": "GitHub Desktop",
+    "wingetId": "GitHub.GitHubDesktop",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://desktop.github.com/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Official GitHub GUI client."
+  },
+  {
+    "category": "Development",
+    "displayName": "GitKraken Client",
+    "wingetId": "Axosoft.GitKraken",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.gitkraken.com/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Cross-platform Git GUI with workflows for hosted services."
+  },
+  {
+    "category": "Development",
+    "displayName": "Gitty",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Development",
+    "displayName": "Go",
+    "wingetId": "GoLang.Go",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://go.dev/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Statically typed compiled language from Google."
+  },
+  {
+    "category": "Development",
+    "displayName": "Godot Engine",
+    "wingetId": "GodotEngine.GodotEngine",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://godotengine.org/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Open-source 2D/3D game engine."
+  },
+  {
+    "category": "Development",
+    "displayName": "Helix",
+    "wingetId": "Helix-Editor.Helix",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://helix-editor.com/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Post-modern modal text editor inspired by Kakoune and Neovim."
+  },
+  {
+    "category": "Development",
+    "displayName": "ImHex (Hex Editor)",
+    "wingetId": "WerWolv.ImHex",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://imhex.werwolv.net/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Hex editor with pattern language for reverse engineering."
+  },
+  {
+    "category": "Development",
+    "displayName": "Jetbrains Toolbox",
+    "wingetId": "JetBrains.Toolbox",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.jetbrains.com/toolbox-app/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Manager for JetBrains IDEs (IntelliJ, Rider, WebStorm, etc.)."
+  },
+  {
+    "category": "Development",
+    "displayName": "Lazygit",
+    "wingetId": "JesseDuffield.lazygit",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://github.com/jesseduffield/lazygit",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Terminal UI for Git commands."
+  },
+  {
+    "category": "Development",
+    "displayName": "Miniconda",
+    "wingetId": "Anaconda.Miniconda3",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://docs.conda.io/projects/miniconda/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Minimal conda installer; ship-only Python plus conda."
+  },
+  {
+    "category": "Development",
+    "displayName": "Neovim",
+    "wingetId": "Neovim.Neovim",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://neovim.io/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget",
+      "scoop"
+    ],
+    "description": "Hyperextensible Vim-based text editor."
+  },
+  {
+    "category": "Development",
+    "displayName": "Node Version Manager",
+    "wingetId": "CoreyButler.NVMforWindows",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://github.com/coreybutler/nvm-windows",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "nvm-for-windows: switch between Node.js versions."
+  },
+  {
+    "category": "Development",
+    "displayName": "NodeJS",
+    "wingetId": "OpenJS.NodeJS.LTS",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://nodejs.org/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "JavaScript runtime built on Chrome's V8 engine."
+  },
+  {
+    "category": "Development",
+    "displayName": "Oh My Posh (Prompt)",
+    "wingetId": "JanDeDobbeleer.OhMyPosh",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://ohmyposh.dev/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Themable prompt engine for any shell."
+  },
+  {
+    "category": "Development",
+    "displayName": "Pester",
+    "wingetId": "",
+    "chocoId": "",
+    "powerShellGalleryId": "Pester",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "powershell",
+      "test"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "psgallery"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Development",
+    "displayName": "Pixi",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Development",
+    "displayName": "Postman",
+    "wingetId": "Postman.Postman",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.postman.com/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "API platform for testing and documenting HTTP APIs."
+  },
+  {
+    "category": "Development",
+    "displayName": "PSScriptAnalyzer",
+    "wingetId": "",
+    "chocoId": "",
+    "powerShellGalleryId": "PSScriptAnalyzer",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "powershell",
+      "lint"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "psgallery"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Development",
+    "displayName": "Pulsar",
+    "wingetId": "Pulsar-Edit.Pulsar",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://pulsar-edit.dev/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Community-maintained successor to Atom editor."
+  },
+  {
+    "category": "Development",
+    "displayName": "Python Version Manager (pyenv)",
+    "wingetId": "pyenv-win.pyenv-win",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://github.com/pyenv-win/pyenv-win",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Windows port of pyenv: switch between Python versions."
+  },
+  {
+    "category": "Development",
+    "displayName": "Python3",
+    "wingetId": "Python.Python3",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.python.org/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "The reference CPython interpreter."
+  },
+  {
+    "category": "Development",
+    "displayName": "Ruff",
+    "wingetId": "",
+    "chocoId": "",
+    "pipId": "ruff",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "pip",
+      "python",
+      "lint"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "pip"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Development",
+    "displayName": "Rust",
+    "wingetId": "Rustlang.Rustup",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.rust-lang.org/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Systems programming language with memory safety guarantees."
+  },
+  {
+    "category": "Development",
+    "displayName": "Starship (Shell Prompt)",
+    "wingetId": "Starship.Starship",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://starship.rs/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Cross-shell prompt written in Rust."
+  },
+  {
+    "category": "Development",
+    "displayName": "Sublime Merge",
+    "wingetId": "SublimeHQ.SublimeMerge",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.sublimemerge.com/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Native Git client from the makers of Sublime Text."
+  },
+  {
+    "category": "Development",
+    "displayName": "Sublime Text",
+    "wingetId": "SublimeHQ.SublimeText.4",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.sublimetext.com/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Fast, native-code text editor."
+  },
+  {
+    "category": "Development",
+    "displayName": "Swift toolchain",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Development",
+    "displayName": "System Informer",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Development",
+    "displayName": "Thonny Python IDE",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Development",
+    "displayName": "TypeScript",
+    "wingetId": "",
+    "chocoId": "",
+    "npmId": "typescript",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "npm",
+      "cli",
+      "typescript"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "npm"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Development",
+    "displayName": "Unity Game Engine",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Development",
+    "displayName": "Vagrant",
+    "wingetId": "Hashicorp.Vagrant",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.vagrantup.com/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "HashiCorp's tool for managing reproducible development VMs."
+  },
+  {
+    "category": "Development",
+    "displayName": "Visual Studio 2022",
+    "wingetId": "Microsoft.VisualStudio.2022.Community",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://visualstudio.microsoft.com/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Microsoft's flagship IDE, Community edition."
+  },
+  {
+    "category": "Development",
+    "displayName": "VS Code",
+    "wingetId": "Microsoft.VisualStudioCode",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://code.visualstudio.com/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Lightweight code editor from Microsoft with a vast extension ecosystem."
+  },
+  {
+    "category": "Development",
+    "displayName": "VS Codium",
+    "wingetId": "VSCodium.VSCodium",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://vscodium.com/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Telemetry-free, freely-licensed binaries of VS Code's source."
+  },
+  {
+    "category": "Development",
+    "displayName": "Wezterm",
+    "wingetId": "wez.wezterm",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://wezfurlong.org/wezterm/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "GPU-accelerated terminal emulator written in Rust."
+  },
+  {
+    "category": "Development",
+    "displayName": "Yarn",
+    "wingetId": "Yarn.Yarn",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://yarnpkg.com/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "JavaScript package manager."
+  },
+  {
+    "category": "Development",
+    "displayName": "Zed",
+    "wingetId": "Zed-Industries.Zed",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://zed.dev/",
+    "tags": [
+      "development"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "High-performance, multiplayer code editor written in Rust."
+  },
+  {
+    "category": "Document",
+    "displayName": "Adobe Acrobat Reader",
+    "wingetId": "Adobe.Acrobat.Reader.64-bit",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.adobe.com/acrobat/pdf-reader.html",
+    "tags": [
+      "document"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Adobe's reference PDF reader."
+  },
+  {
+    "category": "Document",
+    "displayName": "AFFiNE",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "document"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Document",
+    "displayName": "Anki",
+    "wingetId": "Anki.Anki",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://apps.ankiweb.net/",
+    "tags": [
+      "document"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Spaced-repetition flashcard application."
+  },
+  {
+    "category": "Document",
+    "displayName": "Calibre",
+    "wingetId": "calibre.calibre",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://calibre-ebook.com/",
+    "tags": [
+      "document"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "E-book library manager and converter."
+  },
+  {
+    "category": "Document",
+    "displayName": "Foxit PDF Editor",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "document"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Document",
+    "displayName": "Foxit PDF Reader",
+    "wingetId": "Foxit.FoxitReader",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.foxit.com/pdf-reader/",
+    "tags": [
+      "document"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Lightweight commercial PDF reader."
+  },
+  {
+    "category": "Document",
+    "displayName": "Joplin (FOSS Notes)",
+    "wingetId": "Joplin.Joplin",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://joplinapp.org/",
+    "tags": [
+      "document"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Open-source markdown note-taking app with end-to-end-encryptable sync."
+  },
+  {
+    "category": "Document",
+    "displayName": "LibreOffice",
+    "wingetId": "LibreOffice.LibreOffice",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.libreoffice.org/",
+    "tags": [
+      "document"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Free office suite (Writer, Calc, Impress, Draw, Base, Math)."
+  },
+  {
+    "category": "Document",
+    "displayName": "Logseq",
+    "wingetId": "Logseq.Logseq",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://logseq.com/",
+    "tags": [
+      "document"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Local-first outliner-style knowledge base."
+  },
+  {
+    "category": "Document",
+    "displayName": "massCode (Snippet Manager)",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "document"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Document",
+    "displayName": "NAPS2 (Document Scanner)",
+    "wingetId": "Cyanfish.NAPS2",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.naps2.com/",
+    "tags": [
+      "document"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Lightweight scan-to-PDF utility."
+  },
+  {
+    "category": "Document",
+    "displayName": "Notepad++",
+    "wingetId": "Notepadplusplus.Notepadplusplus",
+    "chocoId": "notepadplusplus",
+    "silentArgs": "",
+    "homepage": "https://notepad-plus-plus.org/",
+    "tags": [
+      "document"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget",
+      "choco"
+    ],
+    "description": "Long-standing open-source code/text editor for Windows."
+  },
+  {
+    "category": "Document",
+    "displayName": "Obsidian",
+    "wingetId": "Obsidian.Obsidian",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://obsidian.md/",
+    "tags": [
+      "document"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Local-first markdown knowledge base with a graph view."
+  },
+  {
+    "category": "Document",
+    "displayName": "Okular",
+    "wingetId": "KDE.Okular",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://okular.kde.org/",
+    "tags": [
+      "document"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "KDE's universal document viewer."
+  },
+  {
+    "category": "Document",
+    "displayName": "ONLYOffice Desktop",
+    "wingetId": "ONLYOFFICE.DesktopEditors",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.onlyoffice.com/desktop.aspx",
+    "tags": [
+      "document"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Open-source office suite focused on docx/xlsx/pptx fidelity."
+  },
+  {
+    "category": "Document",
+    "displayName": "PDF24 creator",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "document"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Document",
+    "displayName": "PDFgear",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "document"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Document",
+    "displayName": "PDFsam Basic",
+    "wingetId": "PDFsam.PDFsam",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://pdfsam.org/",
+    "tags": [
+      "document"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Open-source split, merge, rotate and extract for PDFs."
+  },
+  {
+    "category": "Document",
+    "displayName": "simplenote",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "document"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Document",
+    "displayName": "Sumatra PDF",
+    "wingetId": "SumatraPDF.SumatraPDF",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.sumatrapdfreader.org/",
+    "tags": [
+      "document"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Minimal, fast PDF/EPUB/CBZ reader for Windows."
+  },
+  {
+    "category": "Document",
+    "displayName": "WinMerge",
+    "wingetId": "WinMerge.WinMerge",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://winmerge.org/",
+    "tags": [
+      "document"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "File and folder diff/merge tool."
+  },
+  {
+    "category": "Document",
+    "displayName": "Xournal++",
+    "wingetId": "Xournalpp.Xournalpp",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://xournalpp.github.io/",
+    "tags": [
+      "document"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Handwriting and PDF-annotation app."
+  },
+  {
+    "category": "Document",
+    "displayName": "Zim Desktop Wiki",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "document"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Document",
+    "displayName": "Znote",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "document"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Document",
+    "displayName": "Zotero",
+    "wingetId": "DigitalScholar.Zotero",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.zotero.org/",
+    "tags": [
+      "document"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Free reference manager for academic research."
+  },
+  {
+    "category": "Games",
+    "displayName": "Cemu",
+    "wingetId": "Cemu.Cemu",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://cemu.info/",
+    "tags": [
+      "games"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Wii U emulator."
+  },
+  {
+    "category": "Games",
+    "displayName": "Clone Hero",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "games"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Games",
+    "displayName": "EA App",
+    "wingetId": "ElectronicArts.EADesktop",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.ea.com/ea-app",
+    "tags": [
+      "games"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Electronic Arts' desktop launcher."
+  },
+  {
+    "category": "Games",
+    "displayName": "Emulation Station",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "games"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Games",
+    "displayName": "Epic Games Launcher",
+    "wingetId": "EpicGames.EpicGamesLauncher",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.epicgames.com/store/",
+    "tags": [
+      "games"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Storefront and launcher for Epic Games."
+  },
+  {
+    "category": "Games",
+    "displayName": "GeForce NOW",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "games"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Games",
+    "displayName": "GOG Galaxy",
+    "wingetId": "GOG.Galaxy",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.gog.com/galaxy",
+    "tags": [
+      "games"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "DRM-free game library client from CD Projekt."
+  },
+  {
+    "category": "Games",
+    "displayName": "Heroic Games Launcher",
+    "wingetId": "HeroicGamesLauncher.HeroicGamesLauncher",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://heroicgameslauncher.com/",
+    "tags": [
+      "games"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Open-source launcher for Epic, GOG and Amazon Prime games."
+  },
+  {
+    "category": "Games",
+    "displayName": "Itch.io",
+    "wingetId": "ItchIo.Itch",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://itch.io/app",
+    "tags": [
+      "games"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Desktop app for the itch.io indie game marketplace."
+  },
+  {
+    "category": "Games",
+    "displayName": "Moonlight/GameStream Client",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "games"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Games",
+    "displayName": "Playnite",
+    "wingetId": "Playnite.Playnite",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://playnite.link/",
+    "tags": [
+      "games"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Open-source unified game library that aggregates Steam/Epic/GOG/etc."
+  },
+  {
+    "category": "Games",
+    "displayName": "Prism Launcher",
+    "wingetId": "PrismLauncher.PrismLauncher",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://prismlauncher.org/",
+    "tags": [
+      "games"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Open-source Minecraft launcher fork (formerly PolyMC)."
+  },
+  {
+    "category": "Games",
+    "displayName": "PS Remote Play",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "games"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Games",
+    "displayName": "SideQuestVR",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "games"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Games",
+    "displayName": "Steam",
+    "wingetId": "Steam.Steam",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://store.steampowered.com/",
+    "tags": [
+      "games"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Valve's PC gaming storefront and launcher."
+  },
+  {
+    "category": "Games",
+    "displayName": "Sunshine/GameStream Server",
+    "wingetId": "LizardByte.Sunshine",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://github.com/LizardByte/Sunshine",
+    "tags": [
+      "games"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Self-hosted GameStream-compatible game streaming host."
+  },
+  {
+    "category": "Games",
+    "displayName": "TNC Account Switcher",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "games"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Games",
+    "displayName": "Ubisoft Connect",
+    "wingetId": "Ubisoft.Connect",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://ubisoftconnect.com/",
+    "tags": [
+      "games"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Ubisoft's launcher and storefront."
+  },
+  {
+    "category": "Games",
+    "displayName": "Virtual Desktop Streamer",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "games"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Games",
+    "displayName": "XEMU",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "games"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Microsoft Tools",
+    "displayName": ".NET Desktop Runtime 3.1",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "microsoft-tools"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Microsoft Tools",
+    "displayName": ".NET Desktop Runtime 5",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "microsoft-tools"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Microsoft Tools",
+    "displayName": ".NET Desktop Runtime 6",
+    "wingetId": "Microsoft.DotNet.DesktopRuntime.6",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "microsoft-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Microsoft Tools",
+    "displayName": ".NET Desktop Runtime 7",
+    "wingetId": "Microsoft.DotNet.DesktopRuntime.7",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "microsoft-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Microsoft Tools",
+    "displayName": ".NET Desktop Runtime 8",
+    "wingetId": "Microsoft.DotNet.DesktopRuntime.8",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "microsoft-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Microsoft Tools",
+    "displayName": ".NET Desktop Runtime 9",
+    "wingetId": "Microsoft.DotNet.DesktopRuntime.9",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "microsoft-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Microsoft Tools",
+    "displayName": "Autoruns",
+    "wingetId": "Microsoft.Sysinternals.Autoruns",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://learn.microsoft.com/sysinternals/downloads/autoruns",
+    "tags": [
+      "microsoft-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Sysinternals tool that lists every autostart entry on a Windows machine."
+  },
+  {
+    "category": "Microsoft Tools",
+    "displayName": "DISMTools",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "microsoft-tools"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Microsoft Tools",
+    "displayName": "Microsoft Azure Data Studio",
+    "wingetId": "Microsoft.AzureDataStudio",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://learn.microsoft.com/sql/azure-data-studio/",
+    "tags": [
+      "microsoft-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Cross-platform DB tool focused on SQL Server and Azure SQL."
+  },
+  {
+    "category": "Microsoft Tools",
+    "displayName": "Microsoft SQL Server Management",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "microsoft-tools"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Microsoft Tools",
+    "displayName": "NTLite",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "microsoft-tools"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Microsoft Tools",
+    "displayName": "NuGet",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "microsoft-tools"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Microsoft Tools",
+    "displayName": "OneDrive",
+    "wingetId": "Microsoft.OneDrive",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.microsoft.com/microsoft-365/onedrive",
+    "tags": [
+      "microsoft-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Microsoft's consumer cloud-file sync client."
+  },
+  {
+    "category": "Microsoft Tools",
+    "displayName": "Power Automate",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "microsoft-tools"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Microsoft Tools",
+    "displayName": "Power BI",
+    "wingetId": "Microsoft.PowerBI",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.microsoft.com/power-platform/products/power-bi/",
+    "tags": [
+      "microsoft-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Self-service business intelligence and dashboarding."
+  },
+  {
+    "category": "Microsoft Tools",
+    "displayName": "PowerShell",
+    "wingetId": "Microsoft.PowerShell",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://learn.microsoft.com/powershell/",
+    "tags": [
+      "microsoft-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Microsoft's cross-platform task automation shell."
+  },
+  {
+    "category": "Microsoft Tools",
+    "displayName": "PowerToys",
+    "wingetId": "Microsoft.PowerToys",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://learn.microsoft.com/windows/powertoys/",
+    "tags": [
+      "microsoft-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Suite of productivity utilities for Windows power users."
+  },
+  {
+    "category": "Microsoft Tools",
+    "displayName": "Process Explorer",
+    "wingetId": "Microsoft.Sysinternals.ProcessExplorer",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://learn.microsoft.com/sysinternals/downloads/process-explorer",
+    "tags": [
+      "microsoft-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Sysinternals' richer Task Manager replacement."
+  },
+  {
+    "category": "Microsoft Tools",
+    "displayName": "RDCMan",
+    "wingetId": "Microsoft.Sysinternals.RDCMan",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://learn.microsoft.com/sysinternals/downloads/rdcman",
+    "tags": [
+      "microsoft-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Sysinternals Remote Desktop Connection Manager."
+  },
+  {
+    "category": "Microsoft Tools",
+    "displayName": "Sysinternals Process Monitor",
+    "wingetId": "Microsoft.Sysinternals.ProcessMonitor",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://learn.microsoft.com/sysinternals/downloads/procmon",
+    "tags": [
+      "microsoft-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Live filesystem, registry and process activity tracer."
+  },
+  {
+    "category": "Microsoft Tools",
+    "displayName": "Sysinternals TCPView",
+    "wingetId": "Microsoft.Sysinternals.TCPView",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://learn.microsoft.com/sysinternals/downloads/tcpview",
+    "tags": [
+      "microsoft-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Live view of TCP/UDP endpoints by process."
+  },
+  {
+    "category": "Microsoft Tools",
+    "displayName": "Visual C++ 2015-2022 32-bit",
+    "wingetId": "Microsoft.VCRedist.2015+.x86",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "microsoft-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Microsoft Tools",
+    "displayName": "Visual C++ 2015-2022 64-bit",
+    "wingetId": "Microsoft.VCRedist.2015+.x64",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "microsoft-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Microsoft Tools",
+    "displayName": "Windows Terminal",
+    "wingetId": "Microsoft.WindowsTerminal",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://learn.microsoft.com/windows/terminal/",
+    "tags": [
+      "microsoft-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Modern tabbed terminal emulator from Microsoft."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "AIMP (Music Player)",
+    "wingetId": "AIMP.AIMP",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.aimp.ru/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Free audio player with broad codec support."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Audacity",
+    "wingetId": "Audacity.Audacity",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.audacityteam.org/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Multi-track audio editor and recorder."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Blender (3D Graphics)",
+    "wingetId": "Blender.Blender",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.blender.org/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Open-source 3D modelling, rendering, animation, simulation suite."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Clementine",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "darktable",
+    "wingetId": "darktable.darktable",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.darktable.org/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Open-source RAW photo workflow application."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "digiKam",
+    "wingetId": "KDE.digiKam",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.digikam.org/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "KDE's professional photo management application."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "EarTrumpet (Audio)",
+    "wingetId": "File-New-Project.EarTrumpet",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://eartrumpet.app/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Per-app volume mixer for the Windows taskbar."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Equalizer APO",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://sourceforge.net/projects/equalizerapo/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": "System-wide parametric/graphic audio equalizer."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "ExSound",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "FFmpeg (full)",
+    "wingetId": "Gyan.FFmpeg",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://ffmpeg.org/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Reference command-line library and tools for audio/video processing."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Fire Alpaca",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Flameshot (Screenshots)",
+    "wingetId": "Flameshot.Flameshot",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://flameshot.org/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Powerful, simple screenshot tool with annotation."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "foobar2000 (Music Player)",
+    "wingetId": "PeterPawlowski.foobar2000",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.foobar2000.org/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Highly customisable Windows audio player."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "FreeCAD",
+    "wingetId": "FreeCAD.FreeCAD",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.freecad.org/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Open-source parametric 3D CAD modeller."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "GIMP (Image Editor)",
+    "wingetId": "GIMP.GIMP",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.gimp.org/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Open-source raster image editor."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Greenshot (Screenshots)",
+    "wingetId": "Greenshot.Greenshot",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://getgreenshot.org/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Lightweight screenshot tool with annotation."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "HandBrake",
+    "wingetId": "HandBrake.HandBrake",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://handbrake.fr/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Open-source video transcoder."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Harmonoid",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "ImageGlass (Image Viewer)",
+    "wingetId": "DuongDieuPhap.ImageGlass",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://imageglass.org/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Lightweight Windows image viewer."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "ImgBurn",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.imgburn.com/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": "Lightweight optical-disc image burner."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Inkscape",
+    "wingetId": "Inkscape.Inkscape",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://inkscape.org/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Open-source vector graphics editor."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Jellyfin Media Player",
+    "wingetId": "Jellyfin.JellyfinMediaPlayer",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://jellyfin.org/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Desktop client for the Jellyfin media server."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Jellyfin Server",
+    "wingetId": "Jellyfin.Server",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://jellyfin.org/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Open-source self-hosted media streaming server."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "K-Lite Codec Pack",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.codecguide.com/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": "Comprehensive codec pack for Windows media playback."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Kdenlive (Video Editor)",
+    "wingetId": "KDE.Kdenlive",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://kdenlive.org/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "KDE's non-linear video editor."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Kicad",
+    "wingetId": "KiCad.KiCad",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.kicad.org/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Open-source EDA suite for schematic capture and PCB layout."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Kodi Media Center",
+    "wingetId": "XBMCFoundation.Kodi",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://kodi.tv/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Open-source home theatre / media-centre application."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Krita (Image Editor)",
+    "wingetId": "KDE.Krita",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://krita.org/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Digital painting application from KDE."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Lightshot (Screenshots)",
+    "wingetId": "Lightshot.Lightshot",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://app.prntscr.com/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Quick screenshot tool with cloud upload."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Media Player Classic - Home Cinema",
+    "wingetId": "clsid2.mpc-hc",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://github.com/clsid2/mpc-hc/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Lightweight, classic-style media player for Windows."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Modern Flyouts",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Mp3tag (Metadata Audio Editor)",
+    "wingetId": "FlorianHeidenreich.Mp3tag",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.mp3tag.de/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Audio file metadata/tag editor."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "MuseScore",
+    "wingetId": "Musescore.Musescore",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://musescore.org/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Free music notation and composition software."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "MusicBee (Music Player)",
+    "wingetId": "MusicBee.MusicBee",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.getmusicbee.com/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Library-oriented Windows music player."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "nglide (3dfx compatibility)",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Nomacs (Image viewer)",
+    "wingetId": "nomacs.nomacs",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://nomacs.org/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Free, fast cross-platform image viewer."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "OBS Studio",
+    "wingetId": "OBSProject.OBSStudio",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://obsproject.com/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Free streaming and recording software."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "OpenSCAD",
+    "wingetId": "OpenSCAD.OpenSCAD",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://openscad.org/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Programmer's solid-modelling CAD."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Paint.NET",
+    "wingetId": "Paint.NET.PaintDotNet",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.getpaint.net/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Free Windows raster image editor."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Plex Desktop",
+    "wingetId": "Plex.Plexamp",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.plex.tv/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Plexamp desktop client."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Plex Media Server",
+    "wingetId": "Plex.PlexMediaServer",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.plex.tv/media-server/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Self-hosted media library server."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Policy Plus",
+    "wingetId": "Fleex255.PolicyPlus",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://github.com/Fleex255/PolicyPlus",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Open-source replacement for gpedit.msc, also works on Home editions."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "PotPlayer",
+    "wingetId": "Daum.PotPlayer",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://potplayer.daum.net/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Feature-rich Windows media player."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "QGIS",
+    "wingetId": "OSGeo.QGIS",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://qgis.org/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Open-source geographic information system."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "ShareX (Screenshots)",
+    "wingetId": "ShareX.ShareX",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://getsharex.com/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Powerful screenshot/screen-recording/upload tool."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Shotcut",
+    "wingetId": "Meltytech.Shotcut",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://shotcut.org/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Open-source cross-platform video editor."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "SMPlayer",
+    "wingetId": "SMPlayer.SMPlayer",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.smplayer.info/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Front-end for mpv with broad format support."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Strawberry (Music Player)",
+    "wingetId": "StrawberryMusicPlayer.Strawberry",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.strawberrymusicplayer.org/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Music player and library organiser, Clementine fork."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Stremio",
+    "wingetId": "Stremio.Stremio",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.stremio.com/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Media-centre application with add-on streaming sources."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Subtitle Edit",
+    "wingetId": "Nikse.SubtitleEdit",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.nikse.dk/subtitleedit/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Free subtitle editor with translation/transcription helpers."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "TagScanner (Tag Scanner)",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Tidal",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Videomass",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "VLC (Video Player)",
+    "wingetId": "VLC.VLC",
+    "chocoId": "vlc",
+    "silentArgs": "",
+    "homepage": "https://www.videolan.org/vlc/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget",
+      "choco"
+    ],
+    "description": "Reference open-source media player from VideoLAN."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Voicemeeter (Audio)",
+    "wingetId": "VB-Audio.Voicemeeter",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://vb-audio.com/Voicemeeter/",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Virtual audio mixer that routes audio between applications and devices."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "Voicemeeter Potato",
+    "wingetId": "VB-Audio.Voicemeeter.Potato",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://vb-audio.com/Voicemeeter/potato.htm",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "8-bus version of Voicemeeter for advanced audio routing."
+  },
+  {
+    "category": "Multimedia Tools",
+    "displayName": "YT-dlp",
+    "wingetId": "yt-dlp.yt-dlp",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://github.com/yt-dlp/yt-dlp",
+    "tags": [
+      "multimedia-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Feature-rich fork of youtube-dl for downloading from streaming sites."
+  },
+  {
+    "category": "Pro Tools",
+    "displayName": "Advanced IP Scanner",
+    "wingetId": "Famatech.AdvancedIPScanner",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.advanced-ip-scanner.com/",
+    "tags": [
+      "pro-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Free LAN scanner from Famatech."
+  },
+  {
+    "category": "Pro Tools",
+    "displayName": "Angry IP Scanner",
+    "wingetId": "angryziber.AngryIPScanner",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://angryip.org/",
+    "tags": [
+      "pro-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Cross-platform LAN port/host scanner."
+  },
+  {
+    "category": "Pro Tools",
+    "displayName": "EFI Boot Editor",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "pro-tools"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Pro Tools",
+    "displayName": "HeidiSQL",
+    "wingetId": "HeidiSQL.HeidiSQL",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.heidisql.com/",
+    "tags": [
+      "pro-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Lightweight Windows GUI for MySQL/MariaDB/MSSQL/PostgreSQL."
+  },
+  {
+    "category": "Pro Tools",
+    "displayName": "mRemoteNG",
+    "wingetId": "mRemoteNG.mRemoteNG",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://mremoteng.org/",
+    "tags": [
+      "pro-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Multi-protocol remote-connection manager."
+  },
+  {
+    "category": "Pro Tools",
+    "displayName": "Mullvad VPN",
+    "wingetId": "MullvadVPN.MullvadVPN",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://mullvad.net/",
+    "tags": [
+      "pro-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Privacy-focused VPN provider's Windows client."
+  },
+  {
+    "category": "Pro Tools",
+    "displayName": "NetBird",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "pro-tools"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Pro Tools",
+    "displayName": "Nmap",
+    "wingetId": "Insecure.Nmap",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://nmap.org/",
+    "tags": [
+      "pro-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "De facto network scanner and discovery tool."
+  },
+  {
+    "category": "Pro Tools",
+    "displayName": "OpenVPN Connect",
+    "wingetId": "OpenVPNTechnologies.OpenVPNConnect",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://openvpn.net/client/",
+    "tags": [
+      "pro-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "OpenVPN's official desktop client."
+  },
+  {
+    "category": "Pro Tools",
+    "displayName": "Portmaster",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "pro-tools"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Pro Tools",
+    "displayName": "PuTTY",
+    "wingetId": "PuTTY.PuTTY",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.chiark.greenend.org.uk/~sgtatham/putty/",
+    "tags": [
+      "pro-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Long-standing SSH/Telnet client for Windows."
+  },
+  {
+    "category": "Pro Tools",
+    "displayName": "RustDesk",
+    "wingetId": "RustDesk.RustDesk",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://rustdesk.com/",
+    "tags": [
+      "pro-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Open-source remote-desktop alternative to TeamViewer."
+  },
+  {
+    "category": "Pro Tools",
+    "displayName": "Simplewall",
+    "wingetId": "Henry++.simplewall",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.henrypp.org/product/simplewall",
+    "tags": [
+      "pro-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Lightweight tool for configuring Windows Filtering Platform."
+  },
+  {
+    "category": "Pro Tools",
+    "displayName": "Ventoy",
+    "wingetId": "Ventoy.Ventoy",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.ventoy.net/",
+    "tags": [
+      "pro-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Multi-ISO bootable USB creator."
+  },
+  {
+    "category": "Pro Tools",
+    "displayName": "WinSCP",
+    "wingetId": "WinSCP.WinSCP",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://winscp.net/",
+    "tags": [
+      "pro-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Free SCP/SFTP/FTP client for Windows."
+  },
+  {
+    "category": "Pro Tools",
+    "displayName": "WireGuard",
+    "wingetId": "WireGuard.WireGuard",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.wireguard.com/",
+    "tags": [
+      "pro-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Modern, fast, audited VPN tunnel."
+  },
+  {
+    "category": "Pro Tools",
+    "displayName": "Wireshark",
+    "wingetId": "WiresharkFoundation.Wireshark",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.wireshark.org/",
+    "tags": [
+      "pro-tools"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Reference packet capture and protocol analyser."
+  },
+  {
+    "category": "Pro Tools",
+    "displayName": "XPipe",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "pro-tools"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "1Password",
+    "wingetId": "AgileBits.1Password",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://1password.com/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Commercial password manager."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "7-Zip",
+    "wingetId": "7zip.7zip",
+    "chocoId": "7zip",
+    "silentArgs": "",
+    "homepage": "https://www.7-zip.org/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget",
+      "choco"
+    ],
+    "description": "Reference open-source archive utility."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Advanced Renamer",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Alacritty Terminal",
+    "wingetId": "Alacritty.Alacritty",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://alacritty.org/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "GPU-accelerated minimal terminal emulator."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Ambie White Noise",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "AnyDesk",
+    "wingetId": "AnyDeskSoftwareGmbH.AnyDesk",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://anydesk.com/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Commercial remote-desktop client."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "AutoHotkey",
+    "wingetId": "AutoHotkey.AutoHotkey",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.autohotkey.com/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Scripting language for Windows automation and hotkeys."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Barrier",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Bat (Cat)",
+    "wingetId": "sharkdp.bat",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget",
+      "scoop"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Bitwarden",
+    "wingetId": "Bitwarden.Bitwarden",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://bitwarden.com/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Open-source cloud-syncable password manager."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "BleachBit",
+    "wingetId": "BleachBit.BleachBit",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.bleachbit.org/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "System cleaner that frees disk space and shreds files."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Borderless Gaming",
+    "wingetId": "Codeusa.BorderlessGaming",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://github.com/Codeusa/Borderless-Gaming",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Forces fullscreen exclusive games into borderless windowed mode."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Bulk Crap Uninstaller",
+    "wingetId": "Klocman.BulkCrapUninstaller",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.bcuninstaller.com/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Powerful free batch app uninstaller."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Bulk Rename Utility",
+    "wingetId": "TGRMNSoftware.BulkRenameUtility",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.bulkrenameutility.co.uk/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Free Windows file/folder renamer with regex support."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "CapFrameX",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Carnac",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Compact GUI",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "CopyQ (Clipboard Manager)",
+    "wingetId": "hluk.CopyQ",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://hluk.github.io/CopyQ/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Advanced clipboard manager with editable history."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "CPU-Z",
+    "wingetId": "CPUID.CPU-Z",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.cpuid.com/softwares/cpu-z.html",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "CPU/motherboard/memory information utility."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "croc",
+    "wingetId": "schollz.croc",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://github.com/schollz/croc",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Encrypted P2P file transfer between two computers."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Crystal Disk Info",
+    "wingetId": "CrystalDewWorld.CrystalDiskInfo",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://crystalmark.info/en/software/crystaldiskinfo/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "SMART disk health monitoring utility."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Crystal Disk Mark",
+    "wingetId": "CrystalDewWorld.CrystalDiskMark",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://crystalmark.info/en/software/crystaldiskmark/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Disk benchmark utility."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Deluge",
+    "wingetId": "DelugeTeam.Deluge",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://deluge-torrent.org/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Lightweight cross-platform BitTorrent client."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "DevToys",
+    "wingetId": "DevToys-app.DevToys",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://devtoys.app/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Swiss-army-knife of utilities for developers."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Display Driver Uninstaller",
+    "wingetId": "Wagnardsoft.DisplayDriverUninstaller",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.wagnardsoft.com/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Tool for cleanly removing GPU drivers, used during driver upgrades."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Ditto",
+    "wingetId": "Ditto.Ditto",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://ditto-cp.sourceforge.net/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Free Windows clipboard manager."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Dropbox",
+    "wingetId": "Dropbox.Dropbox",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.dropbox.com/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Commercial cloud-file sync client."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Dual Monitor Tools",
+    "wingetId": "DualMonitorTools.DualMonitorTools",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://dualmonitortool.sourceforge.net/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Suite of utilities for multi-monitor workflows."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Duplicati",
+    "wingetId": "Duplicati.Duplicati",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.duplicati.com/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Free encrypted incremental backup client."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Ente Auth",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Espanso",
+    "wingetId": "Espanso.Espanso",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://espanso.org/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Cross-platform text-expander."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Everything Search",
+    "wingetId": "voidtools.Everything",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.voidtools.com/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Instant filename search for NTFS volumes."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "ExifCleaner",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "FanControl",
+    "wingetId": "Rem0o.FanControl",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://getfancontrol.com/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Free, customisable fan-control utility."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Fastfetch",
+    "wingetId": "Fastfetch-cli.Fastfetch",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://github.com/fastfetch-cli/fastfetch",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Modern neofetch alternative for system info display."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "FFmpeg Batch AV Converter",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "File Converter",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Files",
+    "wingetId": "FilesCommunity.Files",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://files.community/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Modern file manager for Windows 11."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Flow Launcher",
+    "wingetId": "Flow-Launcher.Flow-Launcher",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.flowlauncher.com/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Plugin-rich launcher inspired by Wox/Alfred."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Flux",
+    "wingetId": "Flux.Flux",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://justgetflux.com/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Adjusts display colour temperature based on time of day."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "ForceAutoHDR",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Fzf",
+    "wingetId": "junegunn.fzf",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://github.com/junegunn/fzf",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget",
+      "scoop"
+    ],
+    "description": "Command-line fuzzy finder."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Glary Utilities",
+    "wingetId": "Glarysoft.GlaryUtilities",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.glarysoft.com/glary-utilities/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Suite of system maintenance and optimisation utilities."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "GlazeWM",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Google Drive",
+    "wingetId": "Google.GoogleDrive",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.google.com/drive/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Google's cloud-file sync client."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "GPU-Z",
+    "wingetId": "TechPowerUp.GPU-Z",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.techpowerup.com/gpuz/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "GPU information and monitoring utility."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Gsudo",
+    "wingetId": "gerardog.gsudo",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://gerardog.github.io/gsudo/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "sudo for Windows."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "HWiNFO",
+    "wingetId": "REALiX.HWiNFO",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.hwinfo.com/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "In-depth hardware analysis and monitoring."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "HWMonitor",
+    "wingetId": "CPUID.HWMonitor",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.cpuid.com/softwares/hwmonitor.html",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Hardware sensor monitoring utility."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "HxD Hex Editor",
+    "wingetId": "MHNexus.HxD",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://mh-nexus.de/en/hxd/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Free hex editor and disk editor."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Intel-PresentMon",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "JDownloader",
+    "wingetId": "AppWork.JDownloader",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://jdownloader.org/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Java-based download manager for one-click hosters."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "JoyToKey",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "JPEG View",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "KDE Connect",
+    "wingetId": "KDE.KDEConnect",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://kdeconnect.kde.org/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Bidirectional integration between Android phones and a PC."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "KeePassXC",
+    "wingetId": "KeePass.KeePassXC",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://keepassxc.org/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Cross-platform community fork of KeePassX/KeePass."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Lenovo Legion Toolkit",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Link Shell extension",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Lively Wallpaper",
+    "wingetId": "rocksdanister.LivelyWallpaper",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.rocksdanister.com/lively/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Animated/interactive desktop wallpaper engine."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "LocalSend",
+    "wingetId": "LocalSend.LocalSend",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://localsend.org/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Cross-platform open-source AirDrop alternative."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "LockHunter",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Magic Wormhole",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Malwarebytes",
+    "wingetId": "Malwarebytes.Malwarebytes",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.malwarebytes.com/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Anti-malware utility."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Meld",
+    "wingetId": "Meld.Meld",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://meldmerge.org/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Visual diff/merge tool."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Monitorian",
+    "wingetId": "emoacht.Monitorian",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://github.com/emoacht/Monitorian",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Adjust the brightness of multiple monitors from the taskbar."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Motrix Download Manager",
+    "wingetId": "agalwood.Motrix",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://motrix.app/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "All-in-one download manager (HTTP, BT, magnet, etc.)."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "MSI Afterburner",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "NanaZip",
+    "wingetId": "M2Team.NanaZip",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://github.com/M2Team/NanaZip",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "7-Zip fork updated for modern Windows."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Neofetch",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Nextcloud Desktop",
+    "wingetId": "Nextcloud.NextcloudDesktop",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://nextcloud.com/clients/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Sync client for self-hosted Nextcloud."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Nilesoft Shell",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Nushell",
+    "wingetId": "Nushell.Nushell",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.nushell.sh/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Modern structured-data shell."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "NVCleanstall",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "OFGB (Oh Frick Go Back)",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "OPAutoClicker",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Open Shell (Start Menu)",
+    "wingetId": "Open-Shell.Open-Shell-Menu",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://github.com/Open-Shell/Open-Shell-Menu",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Classic Start menu replacement (continuation of Classic Shell)."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "OpenHashTab",
+    "wingetId": "namazso.OpenHashTab",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://github.com/namazso/OpenHashTab",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "File hash calculation in Explorer's Properties dialog."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "OpenRGB",
+    "wingetId": "CalcProgrammer1.OpenRGB",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://openrgb.org/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Vendor-independent RGB lighting control."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Oracle VirtualBox",
+    "wingetId": "Oracle.VirtualBox",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.virtualbox.org/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Free general-purpose hypervisor."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "OrcaSlicer",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "ownCloud Desktop",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://owncloud.com/desktop-app/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": "Sync client for self-hosted ownCloud."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Parsec",
+    "wingetId": "Parsec.Parsec",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://parsec.app/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Low-latency game/desktop streaming."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "PeaZip",
+    "wingetId": "Giorgiotani.Peazip",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://peazip.github.io/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Free archive manager supporting many formats."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Process Lasso",
+    "wingetId": "BitSum.ProcessLasso",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://bitsum.com/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Process priority/affinity automation utility."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Proton Authenticator",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "PrusaSlicer",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "qBittorrent",
+    "wingetId": "qBittorrent.qBittorrent",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.qbittorrent.org/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Free open-source BitTorrent client."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "QuickLook",
+    "wingetId": "QL-Win.QuickLook",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://github.com/QL-Win/QuickLook",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "macOS-style spacebar file preview for Windows."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Rainmeter",
+    "wingetId": "Rainmeter.Rainmeter",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.rainmeter.net/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Customisable desktop widget engine."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Raspberry Pi Imager",
+    "wingetId": "RaspberryPiFoundation.RaspberryPiImager",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.raspberrypi.com/software/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Official Raspberry Pi OS imaging utility."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Revo Uninstaller",
+    "wingetId": "RevoUninstaller.RevoUninstaller",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.revouninstaller.com/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Uninstaller that scrubs leftover files and registry keys."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Rufus",
+    "wingetId": "Rufus.Rufus",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://rufus.ie/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Bootable USB creation utility."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Rufus Image",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "SageThumbs",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Sandboxie Plus",
+    "wingetId": "Sandboxie.Plus",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://sandboxie-plus.com/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Open-source Windows process sandboxing tool."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "SignalRGB",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Snappy Driver Installer Origin",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "SpaceDrive File Manager",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "SuperF4",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Syncthing",
+    "wingetId": "Syncthing.Syncthing",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://syncthing.net/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Continuous file synchronisation between machines."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "SyncTrayzor",
+    "wingetId": "SyncTrayzor.SyncTrayzor",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://github.com/canton7/SyncTrayzor",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Native tray app and wrapper for Syncthing on Windows."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Tabby.sh",
+    "wingetId": "Eugeny.Tabby",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://tabby.sh/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Modern Electron-based terminal."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Tailscale",
+    "wingetId": "tailscale.tailscale",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://tailscale.com/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Mesh VPN built on WireGuard."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "TeamViewer",
+    "wingetId": "TeamViewer.TeamViewer",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.teamviewer.com/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Commercial remote-desktop client."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Teracopy",
+    "wingetId": "CodeSector.TeraCopy",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.codesector.com/teracopy",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Faster, resumable file copy with verification."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "TightVNC",
+    "wingetId": "GlavSoft.TightVNC",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.tightvnc.com/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Open-source VNC client/server."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Tixati",
+    "wingetId": "Tixati.Tixati",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.tixati.com/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "BitTorrent client with detailed traffic stats."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Total Commander",
+    "wingetId": "Ghisler.TotalCommander",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.ghisler.com/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Long-standing dual-pane Windows file manager."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "TranslucentTB",
+    "wingetId": "CharlesMilette.TranslucentTB",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://github.com/TranslucentTB/TranslucentTB",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Make the Windows taskbar fully transparent or blur."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Transmission",
+    "wingetId": "Transmission.Transmission",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://transmissionbt.com/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Lightweight BitTorrent client."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "TreeSize Free",
+    "wingetId": "JAMSoftware.TreeSize.Free",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.jam-software.com/treesize_free/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Disk-usage analyser."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Twinkle Tray",
+    "wingetId": "xanderfrangos.twinkletray",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://twinkletray.com/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Adjust monitor brightness from the taskbar."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "UltraVNC",
+    "wingetId": "uvncbvba.UltraVNC",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "UniGetUI",
+    "wingetId": "Devolutions.UniGetUI",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "VistaSwitcher",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Wazuh",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Windhawk",
+    "wingetId": "RamenSoftware.Windhawk",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "WindowGrid",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Windows Auto Dark Mode",
+    "wingetId": "Armin2208.WindowsAutoNightMode",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://github.com/AutoDarkMode/Windows-Auto-Night-Mode",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Automatic switching between Windows light and dark themes."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Windows Firewall Control",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Windows PC Health Check",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "WinPaletter",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "WinRAR",
+    "wingetId": "WinRAR.WinRAR",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Wise Program Uninstaller (WiseCare)",
+    "wingetId": "WiseCleaner.WiseProgramUninstaller",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.wisecleaner.com/wise-program-uninstaller.html",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Free Windows uninstaller from WiseCleaner."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "WiseToys",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "WizFile",
+    "wingetId": "AntibodySoftware.WizFile",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://antibody-software.com/wizfile/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Fast NTFS-MFT-based file search for Windows."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "WizTree",
+    "wingetId": "AntibodySoftware.WizTree",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "XnView Classic",
+    "wingetId": "XnSoft.XnView.Classic",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Xtreme Download Manager",
+    "wingetId": "",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": true,
+    "packageSourcePriority": [
+      "manual"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "ZeroTier One",
+    "wingetId": "ZeroTier.ZeroTierOne",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "https://www.zerotier.com/",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": "Software-defined virtual networks across the public internet."
+  },
+  {
+    "category": "Utilities",
+    "displayName": "ZoomIt",
+    "wingetId": "Microsoft.Sysinternals.ZoomIt",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": ""
+  },
+  {
+    "category": "Utilities",
+    "displayName": "Zoxide",
+    "wingetId": "ajeetdsouza.zoxide",
+    "chocoId": "",
+    "silentArgs": "",
+    "homepage": "",
+    "tags": [
+      "utilities"
+    ],
+    "manualOnly": false,
+    "packageSourcePriority": [
+      "winget"
+    ],
+    "description": ""
+  }
+]

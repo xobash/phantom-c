@@ -1,0 +1,50 @@
+[
+  {
+    "id": "programs-features",
+    "name": "Programs and Features",
+    "description": "Classic app uninstall panel.",
+    "launchScript": "Start-Process appwiz.cpl"
+  },
+  {
+    "id": "network-connections",
+    "name": "Network Connections",
+    "description": "Legacy network adapter control panel.",
+    "launchScript": "Start-Process ncpa.cpl"
+  },
+  {
+    "id": "services",
+    "name": "Services",
+    "description": "Services MMC snap-in.",
+    "launchScript": "Start-Process services.msc"
+  },
+  {
+    "id": "device-manager",
+    "name": "Device Manager",
+    "description": "Hardware devices management.",
+    "launchScript": "Start-Process devmgmt.msc"
+  },
+  {
+    "id": "disk-management",
+    "name": "Disk Management",
+    "description": "Partition and disk manager.",
+    "launchScript": "Start-Process diskmgmt.msc"
+  },
+  {
+    "id": "gpedit",
+    "name": "Local Group Policy Editor",
+    "description": "Group policy editor (when available).",
+    "launchScript": "Start-Process gpedit.msc"
+  },
+  {
+    "id": "system-properties",
+    "name": "System Properties",
+    "description": "Classic system settings page.",
+    "launchScript": "Start-Process sysdm.cpl"
+  },
+  {
+    "id": "firewall",
+    "name": "Windows Defender Firewall",
+    "description": "Classic firewall configuration.",
+    "launchScript": "Start-Process wf.msc"
+  }
+]

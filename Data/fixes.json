@@ -1,0 +1,92 @@
+[
+  {
+    "id": "reset-network-stack",
+    "name": "Reset network stack",
+    "description": "Runs winsock and TCP/IP reset commands.",
+    "riskTier": "Advanced",
+    "applyScript": "netsh winsock reset; netsh int ip reset",
+    "undoScript": "Write-Output 'Network reset has no direct undo.'",
+    "reversible": false,
+    "destructive": false
+  },
+  {
+    "id": "flush-dns",
+    "name": "Flush DNS cache",
+    "description": "Clears local DNS resolver cache.",
+    "riskTier": "Basic",
+    "applyScript": "ipconfig /flushdns",
+    "undoScript": "Write-Output 'DNS flush has no undo.'",
+    "reversible": false,
+    "destructive": false
+  },
+  {
+    "id": "reset-update-components",
+    "name": "Reset update components",
+    "description": "Stops update services, renames update caches, recreates them and starts services.",
+    "riskTier": "Dangerous",
+    "applyScript": "$stamp = Get-Date -Format 'yyyyMMdd-HHmmss'; $services=@('cryptsvc','bits','wuauserv'); Stop-Service -Name $services -Force -ErrorAction Stop; $softwareDistribution = Join-Path $env:SystemRoot 'SoftwareDistribution'; $catroot2 = Join-Path $env:SystemRoot 'System32\\\\catroot2'; if (Test-Path $softwareDistribution) { Rename-Item -Path $softwareDistribution -NewName (\"SoftwareDistribution.phantom.bak.\" + $stamp) -ErrorAction Stop }; if (Test-Path $catroot2) { Rename-Item -Path $catroot2 -NewName (\"catroot2.phantom.bak.\" + $stamp) -ErrorAction Stop }; New-Item -Path $softwareDistribution -ItemType Directory -Force | Out-Null; New-Item -Path $catroot2 -ItemType Directory -Force | Out-Null; $delay=1; foreach($svc in $services){ $started=$false; for($attempt=1;$attempt -le 5;$attempt++){ try { Start-Service -Name $svc -ErrorAction Stop; if((Get-Service -Name $svc -ErrorAction Stop).Status -eq 'Running'){ $started=$true; break } } catch {} Start-Sleep -Seconds $delay; $delay=[Math]::Min($delay*2,8) }; $final=(Get-Service -Name $svc -ErrorAction SilentlyContinue).Status; Write-Output \"$svc final state: $final\"; if(-not $started){ throw \"Service '$svc' failed to reach Running state.\" } }",
+    "undoScript": "Write-Output 'No automatic undo. Cache backups remain as SoftwareDistribution.phantom.bak.* and catroot2.phantom.bak.* if manual recovery is needed.'",
+    "reversible": false,
+    "destructive": false
+  },
+  {
+    "id": "repair-system-files",
+    "name": "Repair system files (SFC/DISM)",
+    "description": "Runs DISM restorehealth and SFC scan.",
+    "riskTier": "Advanced",
+    "applyScript": "DISM /Online /Cleanup-Image /RestoreHealth; sfc /scannow",
+    "undoScript": "Write-Output 'Repair operation has no direct undo.'",
+    "reversible": false,
+    "destructive": false
+  },
+  {
+    "id": "restart-explorer",
+    "name": "Restart Explorer",
+    "description": "Restarts Windows Explorer shell.",
+    "riskTier": "Basic",
+    "applyScript": "$proc='explorer'; Get-Process -Name $proc -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue; $deadline=(Get-Date).AddSeconds(5); while(Get-Process -Name $proc -ErrorAction SilentlyContinue){ if((Get-Date) -ge $deadline){ throw 'explorer.exe did not terminate within timeout.' }; Start-Sleep -Milliseconds 250 }; Start-Process explorer.exe",
+    "undoScript": "Write-Output 'Explorer restarted.'",
+    "reversible": false,
+    "destructive": false
+  },
+  {
+    "id": "rebuild-icon-cache",
+    "name": "Rebuild icon cache",
+    "description": "Clears icon cache and restarts Explorer.",
+    "riskTier": "Advanced",
+    "applyScript": "$proc='explorer'; Get-Process -Name $proc -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue; $deadline=(Get-Date).AddSeconds(5); while(Get-Process -Name $proc -ErrorAction SilentlyContinue){ if((Get-Date) -ge $deadline){ throw 'explorer.exe did not terminate within timeout.' }; Start-Sleep -Milliseconds 250 }; if(Test-Path \"$env:LOCALAPPDATA\\\\IconCache.db\"){ Remove-Item \"$env:LOCALAPPDATA\\\\IconCache.db\" -Force -ErrorAction Stop }; Start-Process explorer.exe",
+    "undoScript": "Write-Output 'Icon cache rebuild has no undo.'",
+    "reversible": false,
+    "destructive": false
+  },
+  {
+    "id": "reset-print-spooler",
+    "name": "Reset print spooler",
+    "description": "Clears print queue and restarts spooler service.",
+    "riskTier": "Advanced",
+    "applyScript": "Stop-Service spooler -Force; Remove-Item -Path \"$env:SystemRoot\\System32\\spool\\PRINTERS\\*\" -Force -ErrorAction Stop; Start-Service spooler",
+    "undoScript": "Write-Output 'Print queue reset has no undo.'",
+    "reversible": false,
+    "destructive": false
+  },
+  {
+    "id": "reset-ms-store-cache",
+    "name": "Reset Microsoft Store cache",
+    "description": "Runs wsreset.exe to clear Store cache.",
+    "riskTier": "Basic",
+    "applyScript": "Start-Process wsreset.exe -Wait",
+    "undoScript": "Write-Output 'Store cache reset has no undo.'",
+    "reversible": false,
+    "destructive": false
+  },
+  {
+    "id": "enable-optional-updates-service",
+    "name": "Enable update services",
+    "description": "Sets wuauserv and BITS to manual and starts them.",
+    "riskTier": "Basic",
+    "applyScript": "Set-Service wuauserv -StartupType Manual; Set-Service bits -StartupType Manual; Start-Service wuauserv -ErrorAction Stop; Start-Service bits -ErrorAction Stop",
+    "undoScript": "Set-Service wuauserv -StartupType Disabled; Set-Service bits -StartupType Disabled; Stop-Service wuauserv -Force -ErrorAction Stop; Stop-Service bits -Force -ErrorAction Stop",
+    "reversible": true,
+    "destructive": false
+  }
+]

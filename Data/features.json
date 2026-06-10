@@ -1,0 +1,50 @@
+[
+  {
+    "id": "netfx3",
+    "name": ".NET Framework 3.5",
+    "featureName": "NetFx3",
+    "description": "Legacy .NET runtime support."
+  },
+  {
+    "id": "hyperv",
+    "name": "Hyper-V",
+    "featureName": "Microsoft-Hyper-V-All",
+    "description": "Microsoft virtualization platform."
+  },
+  {
+    "id": "wsl",
+    "name": "Windows Subsystem for Linux",
+    "featureName": "Microsoft-Windows-Subsystem-Linux",
+    "description": "WSL platform feature."
+  },
+  {
+    "id": "virtualmachineplatform",
+    "name": "Virtual Machine Platform",
+    "featureName": "VirtualMachinePlatform",
+    "description": "Required by WSL2 and virtualization scenarios."
+  },
+  {
+    "id": "containers",
+    "name": "Containers",
+    "featureName": "Containers",
+    "description": "Windows containers support."
+  },
+  {
+    "id": "telnetclient",
+    "name": "Telnet Client",
+    "featureName": "TelnetClient",
+    "description": "Telnet client legacy feature."
+  },
+  {
+    "id": "tftp",
+    "name": "TFTP Client",
+    "featureName": "TFTP",
+    "description": "TFTP client support."
+  },
+  {
+    "id": "smb1",
+    "name": "SMB 1.0/CIFS",
+    "featureName": "SMB1Protocol",
+    "description": "Legacy SMB protocol feature."
+  }
+]

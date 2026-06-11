@@ -1,17 +1,13 @@
 /* Phantom — native Win32 GUI over the phantom-c core.
  *
- * Design language is ported from the original C# WPF app (App.xaml):
- * dark green-tinted shell (#131918 sidebar, #171C1B canvas), #1D2423 cards
- * with #34413D borders, #F3F4F1 text, #B9C2BC muted text, #0078D4 accent,
- * Segoe MDL2 Assets navigation icons, and a dark title bar.
+ * Modern dark design language derived from (not copied from) the original
+ * WPF app: dark green-tinted shell, card dashboard, pill-style grouped
+ * navigation with Segoe MDL2 icons and an accent indicator, banded list
+ * views with accent selection, a timestamped embedded console with state
+ * badge and file logging, and a dark title bar.
  *
- * Navigation is grouped: Overview (Home), Software (App store, Installed
- * apps), System (Tweaks, Windows features, Services, Legacy panels),
- * Maintenance (Quick fixes, Windows Update), Automation, and Settings.
- *
- * The Home uptime is a stopwatch: it ticks every second from the monotonic
- * GetTickCount64 clock instead of polling system queries. CPU/memory tiles
- * update on the same tick from cheap native counters.
+ * The Home uptime is a stopwatch driven by the monotonic GetTickCount64
+ * clock — never polled. Live tiles update on the same one-second tick.
  *
  * All catalog operations run on a single worker thread through the same
  * operation engine and PowerShell safety validation as the CLI, with the
@@ -46,40 +42,28 @@
 #pragma comment(lib, "uxtheme.lib")
 #endif
 
-/* ------------------------------------------------------------------ */
-/* Palette (from the WPF App.xaml resources)                           */
-/* ------------------------------------------------------------------ */
+#define PHANTOM_VERSION   L"1.2.0"
+#define PHANTOM_REPO_URL  L"https://github.com/xobash/phantom-c"
 
-#define CLR_BG        RGB(0x17, 0x1C, 0x1B)   /* BgColor */
-#define CLR_SHELL     RGB(0x13, 0x19, 0x18)   /* ShellBrush (sidebar) */
-#define CLR_CARD      RGB(0x1D, 0x24, 0x23)   /* DarkCardBrush */
-#define CLR_CARD2     RGB(0x21, 0x2A, 0x28)   /* DarkCard2Brush / header */
-#define CLR_BORDER    RGB(0x34, 0x41, 0x3D)   /* DarkBorderBrush */
-#define CLR_TEXT      RGB(0xF3, 0xF4, 0xF1)   /* DarkTextBrush */
-#define CLR_MUTED     RGB(0xB9, 0xC2, 0xBC)   /* MutedTextBrush */
-#define CLR_ACCENT    RGB(0x00, 0x78, 0xD4)   /* AccentBrush */
-#define CLR_ACCENT_BR RGB(0x3B, 0x9D, 0xFF)   /* AccentBorderBrush */
-#define CLR_NAV_SEL   RGB(0x28, 0x31, 0x2F)   /* NavItemSelectedBrush */
-#define CLR_INPUT     RGB(0x14, 0x1A, 0x19)   /* InputBackgroundBrush */
-#define CLR_ROW       RGB(0x1B, 0x22, 0x21)   /* RowBackgroundBrush */
+#include "gui_theme.h"
 
 #define APP_TITLE    L"Phantom"
 #define WND_CLASS    L"PhantomMainWindow"
 
-#define SIDEBAR_W    216
-#define LOG_H        140
-#define MIN_W        1020
-#define MIN_H        680
+#define SIDEBAR_W    212
+#define CONSOLE_H    178
+#define MIN_W        1040
+#define MIN_H        700
 
-#define WM_APP_LOG     (WM_APP + 1)   /* lParam: heap wchar_t* line */
+#define WM_APP_LOG     (WM_APP + 1)
 #define WM_APP_DONE    (WM_APP + 2)
-#define WM_APP_STATUS  (WM_APP + 3)   /* wParam: MAKEWPARAM(section,item), lParam: heap wchar_t* */
+#define WM_APP_STATUS  (WM_APP + 3)
 
 #define IDT_TICK     1
 
 enum section {
     SEC_HOME, SEC_STORE, SEC_APPS, SEC_TWEAKS, SEC_FEATURES, SEC_SERVICES,
-    SEC_PANELS, SEC_FIXES, SEC_UPDATES, SEC_AUTOMATION, SEC_SETTINGS, SEC_COUNT
+    SEC_PANELS, SEC_FIXES, SEC_UPDATES, SEC_SETTINGS, SEC_COUNT
 };
 
 enum {
@@ -97,9 +81,11 @@ enum {
     ID_EDIT_AUTO_PATH, ID_BTN_AUTO_BROWSE, ID_BTN_AUTO_DRYRUN, ID_BTN_AUTO_RUN,
     ID_CHK_AUTO_FORCE, ID_EDIT_AUTO_ACK,
     ID_CHK_SET_DRYRUN, ID_CHK_SET_RESTORE, ID_CHK_SET_SKIPCAPTURE,
-    ID_BTN_LOG_CLEAR,
-    ID_SEARCH_FIRST = 300,            /* + section */
-    ID_CARD_FIRST = 400,              /* + card index */
+    ID_BTN_ABOUT_GITHUB,
+    ID_BTN_LOG_CLEAR, ID_BTN_LOG_COPY, ID_BTN_LOG_FOLDER,
+    ID_BADGE,
+    ID_SEARCH_FIRST = 300,
+    ID_CARD_FIRST = 400,
 };
 
 #define MAX_BUTTONS 6
@@ -120,8 +106,8 @@ typedef enum {
     JOB_DETECT,
     JOB_DETECT_ALL,
     JOB_AUTOMATION,
-    JOB_APP_UNINSTALL,     /* command = uninstall string, target = app name */
-    JOB_SERVICE,           /* command = service name, target = action */
+    JOB_APP_UNINSTALL,
+    JOB_SERVICE,
 } job_kind;
 
 typedef struct {
@@ -147,34 +133,42 @@ typedef struct {
 
 static struct {
     HINSTANCE inst;
-    HWND wnd, log_edit, log_clear, status_label;
+    HWND wnd;
     HWND nav[SEC_COUNT];
     HWND nav_groups[8];
     int nav_group_count;
     int active;
-    int hover_nav;
 
     HFONT font, font_semibold, font_title, font_big, font_group, font_icon, font_mono;
-    HBRUSH br_bg, br_shell, br_card, br_input, br_row;
+    HBRUSH br_bg, br_shell, br_input;
 
     HWND section_title[SEC_COUNT], section_desc[SEC_COUNT];
     HWND list[SEC_COUNT];
-    HWND search[SEC_COUNT], search_label[SEC_COUNT];
+    HWND search[SEC_COUNT];
     HWND buttons[SEC_COUNT][MAX_BUTTONS];
     int button_count[SEC_COUNT];
 
     home_card cards[HOME_CARDS];
     HWND card_wnd[HOME_CARDS];
-    HWND home_info[HOME_INFO], home_counts;
+    HWND home_info[HOME_INFO];
 
     int *store_filter, store_filter_count;
     int *iapp_filter, iapp_filter_count;
     int *svc_filter, svc_filter_count;
 
     HWND upd_radio[3];
-    HWND auto_path, auto_browse, auto_force, auto_ack_label, auto_ack, auto_note;
-    HWND set_chk[3], set_data_label;
     HWND svc_combo;
+
+    /* Settings page: safety, automation, about */
+    HWND set_head[3];
+    HWND set_chk[3];
+    HWND auto_path, auto_browse, auto_force, auto_ack_label, auto_ack;
+    HWND about_line[3];
+
+    /* Console */
+    HWND console_title, console_badge, log_edit;
+    HWND status_label;
+    wchar_t log_file[MAX_PATH];
 
     entry_list tweaks, features, fixes, panels, apps;
     ph_installed_app *iapps;
@@ -373,13 +367,11 @@ static void run_app_uninstall(job *j) {
 
 static void run_service_job(job *j) {
     char msg[256];
-    bool ok;
     if (strncmp(j->target, "startup:", 8) == 0)
-        ok = ph_service_set_startup(j->command, j->target + 8, msg, sizeof msg);
+        ph_service_set_startup(j->command, j->target + 8, msg, sizeof msg);
     else
-        ok = ph_service_control(j->command, j->target, msg, sizeof msg);
+        ph_service_control(j->command, j->target, msg, sizeof msg);
     post_logf("service %s (%s): %s", j->command, j->target, msg);
-    (void)ok;
 }
 
 static DWORD WINAPI worker_main(LPVOID param) {
@@ -408,11 +400,13 @@ static bool start_job(const job *j) {
     g.last_job = j->kind;
     enable_actions(FALSE);
     set_status_text(L"Working…");
+    InvalidateRect(g.console_badge, NULL, TRUE);
     g.worker = CreateThread(NULL, 0, worker_main, NULL, 0, NULL);
     if (!g.worker) {
         InterlockedExchange(&g.busy, 0);
         enable_actions(TRUE);
         set_status_text(L"Failed to start worker thread.");
+        InvalidateRect(g.console_badge, NULL, TRUE);
         return false;
     }
     return true;
@@ -447,8 +441,6 @@ static AllowDarkModeForWindowFn g_allow_dark_for_window;
 static void enable_dark_app_mode(void) {
     HMODULE ux = LoadLibraryW(L"uxtheme.dll");
     if (!ux) return;
-    /* Undocumented but long-stable ordinals used for dark scrollbars/menus
-     * (the same mechanism the original WPF shell relies on via WPF theming). */
     SetPreferredAppModeFn set_mode = (SetPreferredAppModeFn)(void *)GetProcAddress(ux, MAKEINTRESOURCEA(135));
     g_allow_dark_for_window = (AllowDarkModeForWindowFn)(void *)GetProcAddress(ux, MAKEINTRESOURCEA(133));
     if (set_mode) set_mode(AppModeForceDark);
@@ -456,7 +448,7 @@ static void enable_dark_app_mode(void) {
 
 static void dark_titlebar(HWND wnd) {
     BOOL on = TRUE;
-    if (FAILED(DwmSetWindowAttribute(wnd, 20 /* DWMWA_USE_IMMERSIVE_DARK_MODE */, &on, sizeof on)))
+    if (FAILED(DwmSetWindowAttribute(wnd, 20, &on, sizeof on)))
         DwmSetWindowAttribute(wnd, 19, &on, sizeof on);
 }
 
@@ -471,6 +463,9 @@ static void apply_dark_to_list(HWND lv) {
         if (g_allow_dark_for_window) g_allow_dark_for_window(header, TRUE);
     }
     if (g_allow_dark_for_window) g_allow_dark_for_window(lv, TRUE);
+    /* Taller, airier rows via a 1px-wide state image list. */
+    HIMAGELIST il = ImageList_Create(1, 26, ILC_COLOR32, 1, 1);
+    if (il) ListView_SetImageList(lv, il, LVSIL_SMALL);
 }
 
 /* ------------------------------------------------------------------ */
@@ -484,13 +479,9 @@ static HWND mk(const wchar_t *cls, const wchar_t *text, DWORD style, int id) {
     return h;
 }
 
-static HWND mk_owner_button(const wchar_t *label, int id) {
-    return mk(L"BUTTON", label, BS_OWNERDRAW, id);
-}
-
-static HWND mk_check(const wchar_t *label, int id, DWORD extra) {
-    HWND h = mk(L"BUTTON", label, BS_AUTOCHECKBOX | extra, id);
-    SetWindowTheme(h, L"", L""); /* classic glyph so dark text colors apply */
+static HWND mk_check(const wchar_t *label, int id) {
+    HWND h = mk(L"BUTTON", label, BS_AUTOCHECKBOX, id);
+    SetWindowTheme(h, L"", L"");
     return h;
 }
 
@@ -500,8 +491,9 @@ static HWND mk_radio(const wchar_t *label, int id, DWORD extra) {
     return h;
 }
 
-static HWND mk_edit(int id) {
+static HWND mk_edit(int id, const wchar_t *cue) {
     HWND h = mk(L"EDIT", L"", WS_BORDER | ES_AUTOHSCROLL, id);
+    if (cue) SendMessageW(h, EM_SETCUEBANNER, TRUE, (LPARAM)cue);
     if (g_allow_dark_for_window) g_allow_dark_for_window(h, TRUE);
     return h;
 }
@@ -538,14 +530,13 @@ static HWND mk_list(int section) {
                               WS_CHILD | LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS,
                               0, 0, 10, 10, g.wnd, (HMENU)(INT_PTR)(900 + section), g.inst, NULL);
     SendMessageW(lv, WM_SETFONT, (WPARAM)g.font, TRUE);
-    ListView_SetExtendedListViewStyle(lv, LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
+    ListView_SetExtendedListViewStyle(lv, LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_HEADERDRAGDROP);
     apply_dark_to_list(lv);
     return lv;
 }
 
-static void mk_search(int sec) {
-    g.search_label[sec] = mk(L"STATIC", L"Search", 0, 0);
-    g.search[sec] = mk_edit(ID_SEARCH_FIRST + sec);
+static void mk_search(int sec, const wchar_t *cue) {
+    g.search[sec] = mk_edit(ID_SEARCH_FIRST + sec, cue);
 }
 
 static const char *risk_label(const ph_catalog_entry *e) {
@@ -555,6 +546,13 @@ static const char *risk_label(const ph_catalog_entry *e) {
 /* ------------------------------------------------------------------ */
 /* List fills                                                          */
 /* ------------------------------------------------------------------ */
+
+static void show_count(int shown, int total, const wchar_t *noun) {
+    wchar_t label[96];
+    if (shown == total) _snwprintf(label, 96, L"%d %s", total, noun);
+    else _snwprintf(label, 96, L"%d of %d %s", shown, total, noun);
+    set_status_text(label);
+}
 
 static void fill_tweaks(void) {
     HWND lv = g.list[SEC_TWEAKS];
@@ -612,6 +610,7 @@ static void fill_store(void) {
     char filter[256];
     get_filter_text(SEC_STORE, filter, sizeof filter);
     HWND lv = g.list[SEC_STORE];
+    SendMessageW(lv, WM_SETREDRAW, FALSE, 0);
     ListView_DeleteAllItems(lv);
     g.store_filter_count = 0;
     int row = 0;
@@ -620,19 +619,25 @@ static void fill_store(void) {
         if (filter[0] &&
             !ph_contains_i(e->name, filter) &&
             !ph_contains_i(e->extra, filter) &&
+            !ph_contains_i(e->sources, filter) &&
             !ph_contains_i(e->description, filter)) continue;
         g.store_filter[g.store_filter_count++] = i;
         lv_set(lv, row, 0, e->name);
         lv_set(lv, row, 1, e->extra[0] ? e->extra : "—");
-        lv_set(lv, row, 2, e->description);
+        lv_set(lv, row, 2, e->sources[0] ? e->sources : "—");
+        lv_set(lv, row, 3, e->description);
         row++;
     }
+    SendMessageW(lv, WM_SETREDRAW, TRUE, 0);
+    InvalidateRect(lv, NULL, TRUE);
+    if (g.active == SEC_STORE) show_count(row, g.apps.count, L"apps");
 }
 
 static void fill_installed_apps(void) {
     char filter[256];
     get_filter_text(SEC_APPS, filter, sizeof filter);
     HWND lv = g.list[SEC_APPS];
+    SendMessageW(lv, WM_SETREDRAW, FALSE, 0);
     ListView_DeleteAllItems(lv);
     g.iapp_filter_count = 0;
     int row = 0;
@@ -647,12 +652,16 @@ static void fill_installed_apps(void) {
         lv_set(lv, row, 2, a->publisher[0] ? a->publisher : "—");
         row++;
     }
+    SendMessageW(lv, WM_SETREDRAW, TRUE, 0);
+    InvalidateRect(lv, NULL, TRUE);
+    if (g.active == SEC_APPS) show_count(row, g.iapp_count, L"installed apps");
 }
 
 static void fill_services(void) {
     char filter[256];
     get_filter_text(SEC_SERVICES, filter, sizeof filter);
     HWND lv = g.list[SEC_SERVICES];
+    SendMessageW(lv, WM_SETREDRAW, FALSE, 0);
     ListView_DeleteAllItems(lv);
     g.svc_filter_count = 0;
     int row = 0;
@@ -670,6 +679,9 @@ static void fill_services(void) {
         lv_set(lv, row, 3, s->name);
         row++;
     }
+    SendMessageW(lv, WM_SETREDRAW, TRUE, 0);
+    InvalidateRect(lv, NULL, TRUE);
+    if (g.active == SEC_SERVICES) show_count(row, g.svc_count, L"services");
 }
 
 static void reload_installed_apps(void) {
@@ -693,24 +705,23 @@ static void reload_services(void) {
 /* ------------------------------------------------------------------ */
 
 typedef struct {
-    const wchar_t *group;   /* group heading before this item, "" = spacer */
+    const wchar_t *group;
     const wchar_t *label;
-    const wchar_t *icon;    /* Segoe MDL2 Assets glyph */
+    const wchar_t *icon;
 } nav_def;
 
 /* Glyphs follow the original MainViewModel icon set (Segoe MDL2 Assets). */
 static const nav_def NAV[SEC_COUNT] = {
-    [SEC_HOME]       = {L"OVERVIEW",    L"Home",             L""},
-    [SEC_STORE]      = {L"SOFTWARE",    L"App store",        L""},
-    [SEC_APPS]       = {NULL,           L"Installed apps",   L""},
-    [SEC_TWEAKS]     = {L"SYSTEM",      L"Tweaks",           L""},
-    [SEC_FEATURES]   = {NULL,           L"Windows features", L""},
-    [SEC_SERVICES]   = {NULL,           L"Services",         L""},
-    [SEC_PANELS]     = {NULL,           L"Legacy panels",    L""},
-    [SEC_FIXES]      = {L"MAINTENANCE", L"Quick fixes",      L""},
-    [SEC_UPDATES]    = {NULL,           L"Windows Update",   L""},
-    [SEC_AUTOMATION] = {L"AUTOMATION",  L"Run a config",     L""},
-    [SEC_SETTINGS]   = {L"",            L"Settings",         L""},
+    [SEC_HOME]     = {L"OVERVIEW",    L"Home",             L"\xE80F"},
+    [SEC_STORE]    = {L"SOFTWARE",    L"App store",        L"\xE719"},
+    [SEC_APPS]     = {NULL,           L"Installed apps",   L"\xE8F1"},
+    [SEC_TWEAKS]   = {L"SYSTEM",      L"Tweaks",           L"\xE713"},
+    [SEC_FEATURES] = {NULL,           L"Windows features", L"\xE115"},
+    [SEC_SERVICES] = {NULL,           L"Services",         L"\xE895"},
+    [SEC_PANELS]   = {NULL,           L"Legacy panels",    L"\xE8A7"},
+    [SEC_FIXES]    = {L"MAINTENANCE", L"Quick fixes",      L"\xE90F"},
+    [SEC_UPDATES]  = {NULL,           L"Windows Update",   L"\xE777"},
+    [SEC_SETTINGS] = {L"",            L"Settings",         L"\xE115"},
 };
 
 static void create_nav(void) {
@@ -730,29 +741,33 @@ static void draw_nav_button(const DRAWITEMSTRUCT *dis) {
     RECT rc = dis->rcItem;
     HDC dc = dis->hDC;
 
-    HBRUSH bg = CreateSolidBrush(selected ? CLR_NAV_SEL : CLR_SHELL);
-    FillRect(dc, &rc, bg);
-    DeleteObject(bg);
+    FillRect(dc, &rc, g.br_shell);
 
     if (selected) {
-        RECT bar = { rc.left, rc.top + 7, rc.left + 3, rc.bottom - 7 };
+        HBRUSH br = CreateSolidBrush(CLR_NAV_SEL);
+        HPEN pen = CreatePen(PS_SOLID, 1, CLR_BORDER);
+        HBRUSH ob = (HBRUSH)SelectObject(dc, br);
+        HPEN op = (HPEN)SelectObject(dc, pen);
+        RoundRect(dc, rc.left, rc.top, rc.right, rc.bottom, RAD_NAV, RAD_NAV);
+        SelectObject(dc, ob);
+        SelectObject(dc, op);
+        DeleteObject(br);
+        DeleteObject(pen);
+        RECT bar = { rc.left + 4, rc.top + 8, rc.left + 7, rc.bottom - 8 };
         HBRUSH accent = CreateSolidBrush(CLR_ACCENT);
         FillRect(dc, &bar, accent);
         DeleteObject(accent);
     }
 
     SetBkMode(dc, TRANSPARENT);
-
-    /* icon */
     SetTextColor(dc, selected ? CLR_ACCENT_BR : CLR_MUTED);
     HFONT old = (HFONT)SelectObject(dc, g.font_icon);
-    RECT icon_rc = { rc.left + 14, rc.top, rc.left + 38, rc.bottom };
+    RECT icon_rc = { rc.left + 14, rc.top, rc.left + 40, rc.bottom };
     DrawTextW(dc, NAV[sec].icon, -1, &icon_rc, DT_SINGLELINE | DT_VCENTER | DT_CENTER | DT_NOPREFIX);
 
-    /* label */
     SelectObject(dc, selected ? g.font_semibold : g.font);
     SetTextColor(dc, selected ? CLR_TEXT : CLR_MUTED);
-    RECT text_rc = { rc.left + 44, rc.top, rc.right - 8, rc.bottom };
+    RECT text_rc = { rc.left + 46, rc.top, rc.right - 8, rc.bottom };
     DrawTextW(dc, NAV[sec].label, -1, &text_rc, DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX | DT_END_ELLIPSIS);
     SelectObject(dc, old);
 }
@@ -760,20 +775,18 @@ static void draw_nav_button(const DRAWITEMSTRUCT *dis) {
 static void draw_nav_group(const DRAWITEMSTRUCT *dis, HWND wnd) {
     wchar_t text[64];
     GetWindowTextW(wnd, text, 64);
-    HBRUSH bg = CreateSolidBrush(CLR_SHELL);
-    FillRect(dis->hDC, &dis->rcItem, bg);
-    DeleteObject(bg);
+    FillRect(dis->hDC, &dis->rcItem, g.br_shell);
     SetBkMode(dis->hDC, TRANSPARENT);
-    SetTextColor(dis->hDC, RGB(0x7E, 0x8A, 0x85));
+    SetTextColor(dis->hDC, CLR_FAINT);
     HFONT old = (HFONT)SelectObject(dis->hDC, g.font_group);
     RECT rc = dis->rcItem;
-    rc.left += 16;
+    rc.left += 18;
     DrawTextW(dis->hDC, text, -1, &rc, DT_SINGLELINE | DT_BOTTOM | DT_NOPREFIX);
     SelectObject(dis->hDC, old);
 }
 
 /* ------------------------------------------------------------------ */
-/* Action buttons (owner drawn, accent primary / outlined secondary)   */
+/* Buttons, cards, badge                                               */
 /* ------------------------------------------------------------------ */
 
 static void draw_action_button(const DRAWITEMSTRUCT *dis) {
@@ -783,16 +796,17 @@ static void draw_action_button(const DRAWITEMSTRUCT *dis) {
     bool disabled = (dis->itemState & ODS_DISABLED) != 0;
     bool pressed = (dis->itemState & ODS_SELECTED) != 0;
 
-    COLORREF fill = primary ? (disabled ? RGB(0x2A, 0x42, 0x55) : pressed ? RGB(0x00, 0x5A, 0xA0) : CLR_ACCENT)
+    COLORREF fill = primary ? (disabled ? CLR_BTN_PRI_DISABLED : pressed ? CLR_BTN_PRI_PRESSED : CLR_ACCENT)
                             : (pressed ? CLR_NAV_SEL : CLR_CARD2);
     COLORREF border = primary ? (disabled ? CLR_BORDER : CLR_ACCENT_BR) : CLR_BORDER;
-    COLORREF text = disabled ? RGB(0x6E, 0x78, 0x74) : CLR_TEXT;
+    COLORREF text = disabled ? CLR_BTN_TXT_DISABLED : CLR_TEXT;
 
+    FillRect(dc, &rc, g.br_bg);
     HBRUSH br = CreateSolidBrush(fill);
     HPEN pen = CreatePen(PS_SOLID, 1, border);
     HBRUSH old_br = (HBRUSH)SelectObject(dc, br);
     HPEN old_pen = (HPEN)SelectObject(dc, pen);
-    RoundRect(dc, rc.left, rc.top, rc.right, rc.bottom, 8, 8);
+    RoundRect(dc, rc.left, rc.top, rc.right, rc.bottom, RAD_BUTTON, RAD_BUTTON);
     SelectObject(dc, old_br);
     SelectObject(dc, old_pen);
     DeleteObject(br);
@@ -808,15 +822,11 @@ static void draw_action_button(const DRAWITEMSTRUCT *dis) {
 }
 
 static HWND mk_action(int sec, const wchar_t *label, int id, bool primary) {
-    HWND b = mk_owner_button(label, id);
+    HWND b = mk(L"BUTTON", label, BS_OWNERDRAW, id);
     SetWindowLongPtrW(b, GWLP_USERDATA, primary ? 1 : 0);
     g.buttons[sec][g.button_count[sec]++] = b;
     return b;
 }
-
-/* ------------------------------------------------------------------ */
-/* Home cards                                                          */
-/* ------------------------------------------------------------------ */
 
 static void draw_home_card(const DRAWITEMSTRUCT *dis) {
     int idx = (int)dis->CtlID - ID_CARD_FIRST;
@@ -824,31 +834,56 @@ static void draw_home_card(const DRAWITEMSTRUCT *dis) {
     HDC dc = dis->hDC;
     RECT rc = dis->rcItem;
 
+    FillRect(dc, &rc, g.br_bg);
     HBRUSH br = CreateSolidBrush(CLR_CARD);
     HPEN pen = CreatePen(PS_SOLID, 1, CLR_BORDER);
     HBRUSH old_br = (HBRUSH)SelectObject(dc, br);
     HPEN old_pen = (HPEN)SelectObject(dc, pen);
-    RoundRect(dc, rc.left, rc.top, rc.right, rc.bottom, 10, 10);
+    RoundRect(dc, rc.left, rc.top, rc.right, rc.bottom, RAD_CARD, RAD_CARD);
     SelectObject(dc, old_br);
     SelectObject(dc, old_pen);
     DeleteObject(br);
     DeleteObject(pen);
 
     SetBkMode(dc, TRANSPARENT);
-    SetTextColor(dc, CLR_MUTED);
+    SetTextColor(dc, CLR_FAINT);
     HFONT old = (HFONT)SelectObject(dc, g.font_group);
-    RECT title_rc = { rc.left + 14, rc.top + 10, rc.right - 14, rc.top + 28 };
+    RECT title_rc = { rc.left + 16, rc.top + 12, rc.right - 16, rc.top + 30 };
     DrawTextW(dc, g.cards[idx].title, -1, &title_rc, DT_SINGLELINE | DT_NOPREFIX);
 
     SetTextColor(dc, idx == 0 ? CLR_ACCENT_BR : CLR_TEXT);
     SelectObject(dc, idx == 0 ? g.font_big : g.font_title);
-    RECT value_rc = { rc.left + 14, rc.top + 28, rc.right - 14, rc.bottom - 8 };
+    RECT value_rc = { rc.left + 16, rc.top + 30, rc.right - 16, rc.bottom - 10 };
     DrawTextW(dc, g.cards[idx].value, -1, &value_rc, DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX);
     SelectObject(dc, old);
 }
 
+static void draw_badge(const DRAWITEMSTRUCT *dis) {
+    HDC dc = dis->hDC;
+    RECT rc = dis->rcItem;
+    bool working = g.busy != 0;
+    FillRect(dc, &rc, g.br_bg);
+    HBRUSH br = CreateSolidBrush(working ? CLR_ACCENT : CLR_CARD2);
+    HPEN pen = CreatePen(PS_SOLID, 1, working ? CLR_ACCENT_BR : CLR_BORDER);
+    HBRUSH ob = (HBRUSH)SelectObject(dc, br);
+    HPEN op = (HPEN)SelectObject(dc, pen);
+    RoundRect(dc, rc.left, rc.top, rc.right, rc.bottom, RAD_BADGE, RAD_BADGE);
+    SelectObject(dc, ob);
+    SelectObject(dc, op);
+    DeleteObject(br);
+    DeleteObject(pen);
+    SetBkMode(dc, TRANSPARENT);
+    SetTextColor(dc, working ? CLR_TEXT : CLR_MUTED);
+    HFONT old = (HFONT)SelectObject(dc, g.font_group);
+    DrawTextW(dc, working ? L"WORKING" : L"IDLE", -1, &rc, DT_SINGLELINE | DT_VCENTER | DT_CENTER | DT_NOPREFIX);
+    SelectObject(dc, old);
+}
+
+/* ------------------------------------------------------------------ */
+/* Live tiles + system info                                            */
+/* ------------------------------------------------------------------ */
+
 static void update_live_tiles(void) {
-    /* Uptime: stopwatch off the monotonic tick — never polled. */
     ULONGLONG s = GetTickCount64() / 1000;
     _snwprintf(g.cards[0].value, 96, L"%llud %02llu:%02llu:%02llu",
                s / 86400, (s / 3600) % 24, (s / 60) % 60, s % 60);
@@ -881,7 +916,7 @@ static void fill_home_info(void) {
         wchar_t user[256];
         DWORD un = 256;
         if (!GetUserNameW(user, &un)) user[0] = L'\0';
-        _snwprintf(buf, 256, L"Computer    %s  ·  %s", name, user);
+        _snwprintf(buf, 256, L"Computer       %s  ·  %s", name, user);
         SetWindowTextW(g.home_info[0], buf);
     }
 
@@ -892,7 +927,7 @@ static void fill_home_info(void) {
     RtlGetVersionFn rtl = ntdll ? (RtlGetVersionFn)(void *)GetProcAddress(ntdll, "RtlGetVersion") : NULL;
     if (rtl && rtl(&ver) == 0) {
         const wchar_t *era = (ver.dwMajorVersion == 10 && ver.dwBuildNumber >= 22000) ? L"Windows 11" : L"Windows 10";
-        _snwprintf(buf, 256, L"Windows     %s  ·  build %lu", era, ver.dwBuildNumber);
+        _snwprintf(buf, 256, L"Windows        %s  ·  build %lu", era, ver.dwBuildNumber);
         SetWindowTextW(g.home_info[1], buf);
     }
 
@@ -904,7 +939,7 @@ static void fill_home_info(void) {
         if (RegQueryValueExW(key, L"ProcessorNameString", NULL, NULL, (LPBYTE)cpu, &len) == ERROR_SUCCESS) {
             SYSTEM_INFO si;
             GetNativeSystemInfo(&si);
-            _snwprintf(buf, 256, L"Processor   %s  ·  %lu threads", cpu, si.dwNumberOfProcessors);
+            _snwprintf(buf, 256, L"Processor      %s  ·  %lu threads", cpu, si.dwNumberOfProcessors);
             SetWindowTextW(g.home_info[2], buf);
         }
         RegCloseKey(key);
@@ -915,17 +950,17 @@ static void fill_home_info(void) {
         wchar_t drive[4] = { windir[0], L':', L'\\', 0 };
         ULARGE_INTEGER total, free_b;
         if (GetDiskFreeSpaceExW(drive, NULL, &total, &free_b)) {
-            _snwprintf(buf, 256, L"Storage      %s  %.0f GB free of %.0f GB", drive,
+            _snwprintf(buf, 256, L"Storage        %s  %.0f GB free of %.0f GB", drive,
                        (double)free_b.QuadPart / (1024.0 * 1024 * 1024),
                        (double)total.QuadPart / (1024.0 * 1024 * 1024));
             SetWindowTextW(g.home_info[3], buf);
         }
     }
 
-    _snwprintf(buf, 256, L"Software     %d installed apps  ·  %d services", g.iapp_count, g.svc_count);
+    _snwprintf(buf, 256, L"Software       %d installed apps  ·  %d services", g.iapp_count, g.svc_count);
     SetWindowTextW(g.home_info[4], buf);
 
-    _snwprintf(buf, 256, L"Catalogs     %d apps · %d tweaks · %d features · %d fixes · %d panels",
+    _snwprintf(buf, 256, L"Catalogs       %d apps · %d tweaks · %d features · %d fixes · %d panels",
                g.apps.count, g.tweaks.count, g.features.count, g.fixes.count, g.panels.count);
     SetWindowTextW(g.home_info[5], buf);
 }
@@ -956,66 +991,62 @@ static void create_home(void) {
 static void create_sections(void) {
     create_home();
 
-    /* Store */
     create_section_header(SEC_STORE, L"App store",
         L"Install, remove, and upgrade applications from the curated catalog — winget, scoop, choco, pip, npm, dotnet, PowerShell Gallery.");
-    mk_search(SEC_STORE);
+    mk_search(SEC_STORE, L"Search 375 apps by name, category, or source…");
     g.list[SEC_STORE] = mk_list(SEC_STORE);
-    lv_add_column(g.list[SEC_STORE], 0, L"Application", 220);
+    lv_add_column(g.list[SEC_STORE], 0, L"Application", 230);
     lv_add_column(g.list[SEC_STORE], 1, L"Category", 130);
-    lv_add_column(g.list[SEC_STORE], 2, L"Description", 380);
+    lv_add_column(g.list[SEC_STORE], 2, L"Sources", 140);
+    lv_add_column(g.list[SEC_STORE], 3, L"Description", 340);
     mk_action(SEC_STORE, L"Install", ID_BTN_STORE_INSTALL, true);
     mk_action(SEC_STORE, L"Uninstall", ID_BTN_STORE_UNINSTALL, false);
     mk_action(SEC_STORE, L"Upgrade", ID_BTN_STORE_UPGRADE, false);
     mk_action(SEC_STORE, L"Check installed", ID_BTN_STORE_STATUS, false);
 
-    /* Installed apps */
     create_section_header(SEC_APPS, L"Installed apps",
-        L"Everything registered on this PC, from the same registry data the classic Programs and Features panel uses.");
-    mk_search(SEC_APPS);
+        L"Everything registered on this PC — the same data the classic Programs and Features panel shows.");
+    mk_search(SEC_APPS, L"Search installed apps…");
     g.list[SEC_APPS] = mk_list(SEC_APPS);
-    lv_add_column(g.list[SEC_APPS], 0, L"Application", 300);
+    lv_add_column(g.list[SEC_APPS], 0, L"Application", 320);
     lv_add_column(g.list[SEC_APPS], 1, L"Version", 110);
-    lv_add_column(g.list[SEC_APPS], 2, L"Publisher", 220);
+    lv_add_column(g.list[SEC_APPS], 2, L"Publisher", 240);
     mk_action(SEC_APPS, L"Uninstall", ID_BTN_APP_UNINSTALL, true);
     mk_action(SEC_APPS, L"Open location", ID_BTN_APP_LOCATION, false);
     mk_action(SEC_APPS, L"Refresh", ID_BTN_APP_REFRESH, false);
 
-    /* Tweaks */
     create_section_header(SEC_TWEAKS, L"Tweaks",
         L"Privacy and system tweaks. Select one, then apply, undo, or check its current state.");
-    mk_search(SEC_TWEAKS);
+    mk_search(SEC_TWEAKS, L"Search tweaks…");
     g.list[SEC_TWEAKS] = mk_list(SEC_TWEAKS);
     lv_add_column(g.list[SEC_TWEAKS], 0, L"Tweak", 230);
     lv_add_column(g.list[SEC_TWEAKS], 1, L"Risk", 90);
-    lv_add_column(g.list[SEC_TWEAKS], 2, L"Reversible", 80);
+    lv_add_column(g.list[SEC_TWEAKS], 2, L"Reversible", 84);
     lv_add_column(g.list[SEC_TWEAKS], 3, L"Status", 100);
-    lv_add_column(g.list[SEC_TWEAKS], 4, L"Description", 280);
+    lv_add_column(g.list[SEC_TWEAKS], 4, L"Description", 300);
     mk_action(SEC_TWEAKS, L"Apply", ID_BTN_TWEAK_APPLY, true);
     mk_action(SEC_TWEAKS, L"Undo", ID_BTN_TWEAK_UNDO, false);
     mk_action(SEC_TWEAKS, L"Check status", ID_BTN_TWEAK_DETECT, false);
     mk_action(SEC_TWEAKS, L"Check all", ID_BTN_TWEAK_DETECT_ALL, false);
 
-    /* Features */
     create_section_header(SEC_FEATURES, L"Windows features",
         L"Enable or disable optional Windows features (WSL, Hyper-V, Sandbox…). Changes may require a reboot.");
     g.list[SEC_FEATURES] = mk_list(SEC_FEATURES);
-    lv_add_column(g.list[SEC_FEATURES], 0, L"Feature", 220);
+    lv_add_column(g.list[SEC_FEATURES], 0, L"Feature", 230);
     lv_add_column(g.list[SEC_FEATURES], 1, L"Status", 100);
-    lv_add_column(g.list[SEC_FEATURES], 2, L"Description", 400);
+    lv_add_column(g.list[SEC_FEATURES], 2, L"Description", 420);
     mk_action(SEC_FEATURES, L"Enable", ID_BTN_FEATURE_ENABLE, true);
     mk_action(SEC_FEATURES, L"Disable", ID_BTN_FEATURE_DISABLE, false);
     mk_action(SEC_FEATURES, L"Check status", ID_BTN_FEATURE_DETECT, false);
 
-    /* Services */
     create_section_header(SEC_SERVICES, L"Services",
         L"Start, stop, and reconfigure Windows services. Changing services usually requires running Phantom as administrator.");
-    mk_search(SEC_SERVICES);
+    mk_search(SEC_SERVICES, L"Search services…");
     g.list[SEC_SERVICES] = mk_list(SEC_SERVICES);
-    lv_add_column(g.list[SEC_SERVICES], 0, L"Service", 260);
+    lv_add_column(g.list[SEC_SERVICES], 0, L"Service", 280);
     lv_add_column(g.list[SEC_SERVICES], 1, L"Status", 90);
     lv_add_column(g.list[SEC_SERVICES], 2, L"Startup", 100);
-    lv_add_column(g.list[SEC_SERVICES], 3, L"Name", 160);
+    lv_add_column(g.list[SEC_SERVICES], 3, L"Name", 170);
     mk_action(SEC_SERVICES, L"Start", ID_BTN_SVC_START, true);
     mk_action(SEC_SERVICES, L"Stop", ID_BTN_SVC_STOP, false);
     mk_action(SEC_SERVICES, L"Restart", ID_BTN_SVC_RESTART, false);
@@ -1029,26 +1060,23 @@ static void create_sections(void) {
     if (g_allow_dark_for_window) g_allow_dark_for_window(g.svc_combo, TRUE);
     SetWindowTheme(g.svc_combo, L"DarkMode_CFD", NULL);
 
-    /* Panels */
     create_section_header(SEC_PANELS, L"Legacy panels",
         L"Shortcuts to the classic Windows control panels that newer Settings pages hide.");
     g.list[SEC_PANELS] = mk_list(SEC_PANELS);
-    lv_add_column(g.list[SEC_PANELS], 0, L"Panel", 220);
-    lv_add_column(g.list[SEC_PANELS], 1, L"Description", 480);
+    lv_add_column(g.list[SEC_PANELS], 0, L"Panel", 230);
+    lv_add_column(g.list[SEC_PANELS], 1, L"Description", 500);
     mk_action(SEC_PANELS, L"Open", ID_BTN_PANEL_OPEN, true);
 
-    /* Fixes */
     create_section_header(SEC_FIXES, L"Quick fixes",
         L"One-shot repairs: DNS flush, Windows Update reset, WinGet repair, and more.");
     g.list[SEC_FIXES] = mk_list(SEC_FIXES);
     lv_add_column(g.list[SEC_FIXES], 0, L"Fix", 230);
     lv_add_column(g.list[SEC_FIXES], 1, L"Risk", 90);
-    lv_add_column(g.list[SEC_FIXES], 2, L"Reversible", 80);
-    lv_add_column(g.list[SEC_FIXES], 3, L"Description", 360);
+    lv_add_column(g.list[SEC_FIXES], 2, L"Reversible", 84);
+    lv_add_column(g.list[SEC_FIXES], 3, L"Description", 380);
     mk_action(SEC_FIXES, L"Run fix", ID_BTN_FIX_RUN, true);
     mk_action(SEC_FIXES, L"Undo", ID_BTN_FIX_UNDO, false);
 
-    /* Updates */
     create_section_header(SEC_UPDATES, L"Windows Update",
         L"Choose how Windows Update behaves. \"Disable all\" is dangerous and stops update services entirely.");
     g.upd_radio[0] = mk_radio(L"Default — Windows manages updates normally", ID_RADIO_UPDATE_DEFAULT, WS_GROUP);
@@ -1058,29 +1086,63 @@ static void create_sections(void) {
     mk_action(SEC_UPDATES, L"Apply mode", ID_BTN_UPDATE_APPLY, true);
     mk_action(SEC_UPDATES, L"Check current mode", ID_BTN_UPDATE_DETECT, false);
 
-    /* Automation */
-    create_section_header(SEC_AUTOMATION, L"Run a config",
-        L"Run an unattended automation config (JSON): store installs, tweaks, features, fixes, and an update mode in one pass.");
-    g.auto_path = mk_edit(ID_EDIT_AUTO_PATH);
-    g.auto_browse = mk_owner_button(L"Browse…", ID_BTN_AUTO_BROWSE);
-    g.auto_force = mk_check(L"Allow dangerous operations (-ForceDangerous)", ID_CHK_AUTO_FORCE, 0);
-    g.auto_ack_label = mk(L"STATIC", L"Acknowledgement token (required for dangerous configs):", 0, 0);
-    g.auto_ack = mk_edit(ID_EDIT_AUTO_ACK);
-    g.auto_note = mk(L"STATIC", L"Dry run validates the config and lists every operation without changing anything. Start there.", 0, 0);
-    mk_action(SEC_AUTOMATION, L"Dry run", ID_BTN_AUTO_DRYRUN, true);
-    mk_action(SEC_AUTOMATION, L"Run", ID_BTN_AUTO_RUN, false);
-
-    /* Settings */
+    /* Settings: safety + automation + about */
     create_section_header(SEC_SETTINGS, L"Settings",
-        L"Safety options applied to every operation started from this window.");
-    g.set_chk[0] = mk_check(L"Dry run only — log what would happen, change nothing", ID_CHK_SET_DRYRUN, 0);
-    g.set_chk[1] = mk_check(L"Create a system restore point before dangerous operations", ID_CHK_SET_RESTORE, 0);
-    g.set_chk[2] = mk_check(L"Continue even if pre-change state capture fails", ID_CHK_SET_SKIPCAPTURE, 0);
+        L"Safety options, unattended automation, and information about this build.");
+
+    g.set_head[0] = mk(L"STATIC", L"SAFETY", 0, 0);
+    SendMessageW(g.set_head[0], WM_SETFONT, (WPARAM)g.font_group, TRUE);
+    g.set_chk[0] = mk_check(L"Dry run only — log what would happen, change nothing", ID_CHK_SET_DRYRUN);
+    g.set_chk[1] = mk_check(L"Create a system restore point before dangerous operations", ID_CHK_SET_RESTORE);
+    g.set_chk[2] = mk_check(L"Continue even if pre-change state capture fails", ID_CHK_SET_SKIPCAPTURE);
     SendMessageW(g.set_chk[1], BM_SETCHECK, BST_CHECKED, 0);
-    g.set_data_label = mk(L"STATIC", L"", 0, 0);
+
+    g.set_head[1] = mk(L"STATIC", L"AUTOMATION — RUN A CONFIG", 0, 0);
+    SendMessageW(g.set_head[1], WM_SETFONT, (WPARAM)g.font_group, TRUE);
+    g.auto_path = mk_edit(ID_EDIT_AUTO_PATH, L"Path to automation config (.json)…");
+    g.auto_browse = mk(L"BUTTON", L"Browse…", BS_OWNERDRAW, ID_BTN_AUTO_BROWSE);
+    g.auto_force = mk_check(L"Allow dangerous operations (-ForceDangerous)", ID_CHK_AUTO_FORCE);
+    g.auto_ack_label = mk(L"STATIC", L"Acknowledgement token (dangerous configs):", 0, 0);
+    g.auto_ack = mk_edit(ID_EDIT_AUTO_ACK, L"I_UNDERSTAND_NO_ROLLBACK");
+    mk_action(SEC_SETTINGS, L"Dry run", ID_BTN_AUTO_DRYRUN, true);
+    mk_action(SEC_SETTINGS, L"Run config", ID_BTN_AUTO_RUN, false);
+
+    g.set_head[2] = mk(L"STATIC", L"ABOUT", 0, 0);
+    SendMessageW(g.set_head[2], WM_SETFONT, (WPARAM)g.font_group, TRUE);
+    g.about_line[0] = mk(L"STATIC", L"Phantom " PHANTOM_VERSION L" (C edition, " PHANTOM_THEME_NAME L" theme) — native, zero runtime dependencies", 0, 0);
+    g.about_line[1] = mk(L"STATIC", L"GPL-3.0 · " PHANTOM_REPO_URL, 0, 0);
+    g.about_line[2] = mk(L"STATIC", L"", 0, 0);
+    mk_action(SEC_SETTINGS, L"Open GitHub", ID_BTN_ABOUT_GITHUB, false);
 }
 
-static void create_log(void) {
+/* ------------------------------------------------------------------ */
+/* Console                                                             */
+/* ------------------------------------------------------------------ */
+
+static void init_log_file(void) {
+    wchar_t base[MAX_PATH];
+    DWORD n = GetEnvironmentVariableW(L"LOCALAPPDATA", base, MAX_PATH);
+    if (n == 0 || n >= MAX_PATH) return;
+    wchar_t dir[MAX_PATH];
+    _snwprintf(dir, MAX_PATH, L"%s\\Phantom", base);
+    CreateDirectoryW(dir, NULL);
+    _snwprintf(dir, MAX_PATH, L"%s\\Phantom\\logs", base);
+    CreateDirectoryW(dir, NULL);
+    SYSTEMTIME st;
+    GetLocalTime(&st);
+    _snwprintf(g.log_file, MAX_PATH, L"%s\\phantom-%04u%02u%02u.log", dir, st.wYear, st.wMonth, st.wDay);
+}
+
+static HWND mk_small_button(const wchar_t *label, int id) {
+    HWND b = mk(L"BUTTON", label, WS_VISIBLE | BS_OWNERDRAW, id);
+    SetWindowLongPtrW(b, GWLP_USERDATA, 0);
+    return b;
+}
+
+static void create_console(void) {
+    g.console_title = mk(L"STATIC", L"Console", WS_VISIBLE, 0);
+    SendMessageW(g.console_title, WM_SETFONT, (WPARAM)g.font_semibold, TRUE);
+    g.console_badge = mk(L"STATIC", L"", WS_VISIBLE | SS_OWNERDRAW, ID_BADGE);
     g.log_edit = CreateWindowExW(0, L"EDIT", L"",
                                  WS_CHILD | WS_VISIBLE | WS_VSCROLL |
                                  ES_MULTILINE | ES_READONLY | ES_AUTOVSCROLL,
@@ -1088,9 +1150,61 @@ static void create_log(void) {
     SendMessageW(g.log_edit, WM_SETFONT, (WPARAM)g.font_mono, TRUE);
     if (g_allow_dark_for_window) g_allow_dark_for_window(g.log_edit, TRUE);
     SetWindowTheme(g.log_edit, L"DarkMode_Explorer", NULL);
-    g.log_clear = mk_owner_button(L"Clear log", ID_BTN_LOG_CLEAR);
-    ShowWindow(g.log_clear, SW_SHOW);
+    mk_small_button(L"Copy", ID_BTN_LOG_COPY);
+    mk_small_button(L"Clear", ID_BTN_LOG_CLEAR);
+    mk_small_button(L"Logs folder", ID_BTN_LOG_FOLDER);
     g.status_label = mk(L"STATIC", L"Ready", WS_VISIBLE, 0);
+}
+
+static HWND console_button(int id) {
+    return GetDlgItem(g.wnd, id);
+}
+
+static void append_log(const wchar_t *line) {
+    SYSTEMTIME st;
+    GetLocalTime(&st);
+    wchar_t stamped[2200];
+    _snwprintf(stamped, 2200, L"[%02u:%02u:%02u]  %s", st.wHour, st.wMinute, st.wSecond, line);
+
+    int len = GetWindowTextLengthW(g.log_edit);
+    SendMessageW(g.log_edit, EM_SETSEL, len, len);
+    SendMessageW(g.log_edit, EM_REPLACESEL, FALSE, (LPARAM)stamped);
+    SendMessageW(g.log_edit, EM_REPLACESEL, FALSE, (LPARAM)L"\r\n");
+    SendMessageW(g.log_edit, EM_SCROLLCARET, 0, 0);
+
+    if (g.log_file[0]) {
+        FILE *f = _wfopen(g.log_file, L"ab");
+        if (f) {
+            char utf8[4400];
+            wide_to_utf8(stamped, utf8, sizeof utf8);
+            fprintf(f, "%s\n", utf8);
+            fclose(f);
+        }
+    }
+}
+
+static void copy_log_to_clipboard(void) {
+    int len = GetWindowTextLengthW(g.log_edit);
+    if (len <= 0 || !OpenClipboard(g.wnd)) return;
+    EmptyClipboard();
+    HGLOBAL mem = GlobalAlloc(GMEM_MOVEABLE, ((size_t)len + 1) * sizeof(wchar_t));
+    if (mem) {
+        wchar_t *p = (wchar_t *)GlobalLock(mem);
+        GetWindowTextW(g.log_edit, p, len + 1);
+        GlobalUnlock(mem);
+        SetClipboardData(CF_UNICODETEXT, mem);
+    }
+    CloseClipboard();
+    set_status_text(L"Console copied to clipboard.");
+}
+
+static void open_logs_folder(void) {
+    wchar_t base[MAX_PATH];
+    if (GetEnvironmentVariableW(L"LOCALAPPDATA", base, MAX_PATH)) {
+        wchar_t dir[MAX_PATH];
+        _snwprintf(dir, MAX_PATH, L"%s\\Phantom\\logs", base);
+        ShellExecuteW(g.wnd, L"open", dir, NULL, NULL, SW_SHOWNORMAL);
+    }
 }
 
 /* ------------------------------------------------------------------ */
@@ -1102,7 +1216,7 @@ static void show_section_controls(int sec, BOOL show) {
     if (g.section_title[sec]) ShowWindow(g.section_title[sec], cmd);
     if (g.section_desc[sec]) ShowWindow(g.section_desc[sec], cmd);
     if (g.list[sec]) ShowWindow(g.list[sec], cmd);
-    if (g.search[sec]) { ShowWindow(g.search[sec], cmd); ShowWindow(g.search_label[sec], cmd); }
+    if (g.search[sec]) ShowWindow(g.search[sec], cmd);
     for (int i = 0; i < g.button_count[sec]; i++) ShowWindow(g.buttons[sec][i], cmd);
     switch (sec) {
         case SEC_HOME:
@@ -1115,14 +1229,13 @@ static void show_section_controls(int sec, BOOL show) {
         case SEC_UPDATES:
             for (int i = 0; i < 3; i++) ShowWindow(g.upd_radio[i], cmd);
             break;
-        case SEC_AUTOMATION:
+        case SEC_SETTINGS:
+            for (int i = 0; i < 3; i++) ShowWindow(g.set_head[i], cmd);
+            for (int i = 0; i < 3; i++) ShowWindow(g.set_chk[i], cmd);
             ShowWindow(g.auto_path, cmd); ShowWindow(g.auto_browse, cmd);
             ShowWindow(g.auto_force, cmd); ShowWindow(g.auto_ack_label, cmd);
-            ShowWindow(g.auto_ack, cmd); ShowWindow(g.auto_note, cmd);
-            break;
-        case SEC_SETTINGS:
-            for (int i = 0; i < 3; i++) ShowWindow(g.set_chk[i], cmd);
-            ShowWindow(g.set_data_label, cmd);
+            ShowWindow(g.auto_ack, cmd);
+            for (int i = 0; i < 3; i++) ShowWindow(g.about_line[i], cmd);
             break;
         default:
             break;
@@ -1137,97 +1250,115 @@ static void select_section(int sec) {
     for (int i = 0; i < SEC_COUNT; i++) InvalidateRect(g.nav[i], NULL, TRUE);
     if (sec == SEC_APPS && !g.iapps) reload_installed_apps();
     if (sec == SEC_SERVICES && !g.services) reload_services();
+    if (sec == SEC_STORE) show_count(g.store_filter_count, g.apps.count, L"apps");
+    else if (sec == SEC_APPS) show_count(g.iapp_filter_count, g.iapp_count, L"installed apps");
+    else if (sec == SEC_SERVICES) show_count(g.svc_filter_count, g.svc_count, L"services");
+    else set_status_text(L"Ready");
 }
 
 static void layout(void) {
     RECT rc;
     GetClientRect(g.wnd, &rc);
     int W = rc.right, H = rc.bottom;
-    int content_x = SIDEBAR_W + 20;
-    int content_w = W - content_x - 20;
+    int content_x = SIDEBAR_W + 24;
+    int content_w = W - content_x - 24;
     int status_y = H - 26;
-    int log_top = status_y - LOG_H;
+    int console_top = status_y - CONSOLE_H;
 
     /* Sidebar */
     int y = 14;
     int gi = 0;
     for (int i = 0; i < SEC_COUNT; i++) {
         if (NAV[i].group) {
-            int gh = NAV[i].group[0] ? 20 : 8;
+            int gh = NAV[i].group[0] ? 22 : 10;
             MoveWindow(g.nav_groups[gi], 0, y, SIDEBAR_W, gh, TRUE);
             y += gh + 4;
             gi++;
         }
-        MoveWindow(g.nav[i], 8, y, SIDEBAR_W - 16, 32, TRUE);
-        y += 34;
+        MoveWindow(g.nav[i], 8, y, SIDEBAR_W - 16, 34, TRUE);
+        y += 37;
     }
 
-    /* Log + status */
-    MoveWindow(g.log_edit, content_x, log_top, content_w - 96, LOG_H - 8, TRUE);
-    MoveWindow(g.log_clear, content_x + content_w - 88, log_top, 88, 28, TRUE);
+    /* Console: header row + log + status */
+    MoveWindow(g.console_title, content_x, console_top + 2, 64, 22, TRUE);
+    MoveWindow(g.console_badge, content_x + 70, console_top + 1, 76, 22, TRUE);
+    int bx = content_x + content_w - 3 * 92 + 8;
+    MoveWindow(console_button(ID_BTN_LOG_COPY), bx, console_top - 2, 84, 26, TRUE);
+    MoveWindow(console_button(ID_BTN_LOG_CLEAR), bx + 92, console_top - 2, 84, 26, TRUE);
+    MoveWindow(console_button(ID_BTN_LOG_FOLDER), bx + 184, console_top - 2, 84, 26, TRUE);
+    MoveWindow(g.log_edit, content_x, console_top + 30, content_w, CONSOLE_H - 36, TRUE);
     MoveWindow(g.status_label, content_x, status_y + 2, content_w, 20, TRUE);
 
     /* Headers */
-    int cy = 16;
+    int cy = 18;
     for (int sec = 0; sec < SEC_COUNT; sec++) {
         if (g.section_title[sec]) MoveWindow(g.section_title[sec], content_x, cy, content_w, 30, TRUE);
-        if (g.section_desc[sec]) MoveWindow(g.section_desc[sec], content_x, cy + 32, content_w, 34, TRUE);
+        if (g.section_desc[sec]) MoveWindow(g.section_desc[sec], content_x, cy + 34, content_w, 34, TRUE);
     }
-    int body_y = cy + 74;
-    int btn_y = log_top - 42;
+    int body_y = cy + 78;
+    int btn_y = console_top - 46;
 
     /* Home */
-    int card_w = (content_w - 3 * 12) / 4;
-    int first_w = content_w - 3 * (card_w + 12); /* absorb rounding in the wide uptime card */
+    int card_w = (content_w - 3 * 14) / 4;
+    int first_w = content_w - 3 * (card_w + 14);
     int cx = content_x;
     for (int i = 0; i < HOME_CARDS; i++) {
         int w = i == 0 ? first_w : card_w;
-        MoveWindow(g.card_wnd[i], cx, body_y, w, 84, TRUE);
-        cx += w + 12;
+        MoveWindow(g.card_wnd[i], cx, body_y, w, 88, TRUE);
+        cx += w + 14;
     }
     for (int i = 0; i < HOME_INFO; i++)
-        MoveWindow(g.home_info[i], content_x + 2, body_y + 104 + i * 26, content_w, 22, TRUE);
+        MoveWindow(g.home_info[i], content_x + 2, body_y + 110 + i * 27, content_w, 24, TRUE);
 
     /* Search rows */
     for (int sec = 0; sec < SEC_COUNT; sec++) {
         if (!g.search[sec]) continue;
-        MoveWindow(g.search_label[sec], content_x, body_y + 3, 50, 20, TRUE);
-        MoveWindow(g.search[sec], content_x + 54, body_y, 280, 26, TRUE);
+        MoveWindow(g.search[sec], content_x, body_y, 340, 28, TRUE);
     }
 
     /* Lists */
     for (int sec = 0; sec < SEC_COUNT; sec++) {
         if (!g.list[sec]) continue;
-        int ly = g.search[sec] ? body_y + 34 : body_y;
-        MoveWindow(g.list[sec], content_x, ly, content_w, btn_y - ly - 10, TRUE);
+        int ly = g.search[sec] ? body_y + 38 : body_y;
+        MoveWindow(g.list[sec], content_x, ly, content_w, btn_y - ly - 12, TRUE);
     }
 
     /* Button rows */
     for (int sec = 0; sec < SEC_COUNT; sec++) {
+        if (sec == SEC_SETTINGS) continue; /* settings buttons are placed inline */
         int x = content_x;
         for (int i = 0; i < g.button_count[sec]; i++) {
-            MoveWindow(g.buttons[sec][i], x, btn_y, 128, 30, TRUE);
-            x += 136;
+            MoveWindow(g.buttons[sec][i], x, btn_y, 132, 31, TRUE);
+            x += 140;
         }
-        if (sec == SEC_SERVICES) MoveWindow(g.svc_combo, x, btn_y + 1, 120, 200, TRUE);
+        if (sec == SEC_SERVICES) MoveWindow(g.svc_combo, x, btn_y + 2, 124, 200, TRUE);
     }
 
     /* Updates radios */
     for (int i = 0; i < 3; i++)
         MoveWindow(g.upd_radio[i], content_x, body_y + i * 32, content_w, 26, TRUE);
 
-    /* Automation */
-    MoveWindow(g.auto_path, content_x, body_y, content_w - 110, 26, TRUE);
-    MoveWindow(g.auto_browse, content_x + content_w - 100, body_y - 1, 100, 28, TRUE);
-    MoveWindow(g.auto_force, content_x, body_y + 38, content_w, 24, TRUE);
-    MoveWindow(g.auto_ack_label, content_x, body_y + 68, content_w, 20, TRUE);
-    MoveWindow(g.auto_ack, content_x, body_y + 90, 360, 26, TRUE);
-    MoveWindow(g.auto_note, content_x, body_y + 128, content_w, 40, TRUE);
-
-    /* Settings */
-    for (int i = 0; i < 3; i++)
-        MoveWindow(g.set_chk[i], content_x, body_y + i * 32, content_w, 26, TRUE);
-    MoveWindow(g.set_data_label, content_x, body_y + 3 * 32 + 14, content_w, 22, TRUE);
+    /* Settings page: SAFETY / AUTOMATION / ABOUT */
+    int sy = body_y;
+    MoveWindow(g.set_head[0], content_x, sy, content_w, 18, TRUE);
+    sy += 24;
+    for (int i = 0; i < 3; i++) { MoveWindow(g.set_chk[i], content_x, sy, content_w, 24, TRUE); sy += 28; }
+    sy += 16;
+    MoveWindow(g.set_head[1], content_x, sy, content_w, 18, TRUE);
+    sy += 24;
+    MoveWindow(g.auto_path, content_x, sy, content_w - 466, 27, TRUE);
+    MoveWindow(g.auto_browse, content_x + content_w - 456, sy - 1, 96, 29, TRUE);
+    MoveWindow(g.buttons[SEC_SETTINGS][0], content_x + content_w - 350, sy - 1, 116, 29, TRUE);
+    MoveWindow(g.buttons[SEC_SETTINGS][1], content_x + content_w - 226, sy - 1, 116, 29, TRUE);
+    sy += 38;
+    MoveWindow(g.auto_force, content_x, sy, 350, 24, TRUE);
+    MoveWindow(g.auto_ack_label, content_x + 370, sy + 2, 290, 20, TRUE);
+    MoveWindow(g.auto_ack, content_x + 664, sy - 2, 250, 26, TRUE);
+    sy += 40;
+    MoveWindow(g.set_head[2], content_x, sy, content_w, 18, TRUE);
+    sy += 24;
+    for (int i = 0; i < 3; i++) { MoveWindow(g.about_line[i], content_x, sy, content_w - 160, 22, TRUE); sy += 25; }
+    MoveWindow(g.buttons[SEC_SETTINGS][2], content_x + content_w - 132, sy - 73, 132, 29, TRUE);
 }
 
 /* ------------------------------------------------------------------ */
@@ -1408,14 +1539,6 @@ static void browse_config(void) {
     if (GetOpenFileNameW(&ofn)) SetWindowTextW(g.auto_path, path);
 }
 
-static void append_log(const wchar_t *line) {
-    int len = GetWindowTextLengthW(g.log_edit);
-    SendMessageW(g.log_edit, EM_SETSEL, len, len);
-    SendMessageW(g.log_edit, EM_REPLACESEL, FALSE, (LPARAM)line);
-    SendMessageW(g.log_edit, EM_REPLACESEL, FALSE, (LPARAM)L"\r\n");
-    SendMessageW(g.log_edit, EM_SCROLLCARET, 0, 0);
-}
-
 /* ------------------------------------------------------------------ */
 /* Window procedure                                                    */
 /* ------------------------------------------------------------------ */
@@ -1430,7 +1553,6 @@ static void on_command(WORD id, WORD code) {
         if (sec == SEC_STORE) fill_store();
         else if (sec == SEC_APPS) fill_installed_apps();
         else if (sec == SEC_SERVICES) fill_services();
-        else if (sec == SEC_TWEAKS) { /* tweaks search filters by selection only */ }
         return;
     }
     switch (id) {
@@ -1467,7 +1589,10 @@ static void on_command(WORD id, WORD code) {
         case ID_BTN_AUTO_BROWSE: browse_config(); break;
         case ID_BTN_AUTO_DRYRUN: start_automation(true); break;
         case ID_BTN_AUTO_RUN:    start_automation(false); break;
+        case ID_BTN_ABOUT_GITHUB: ShellExecuteW(g.wnd, L"open", PHANTOM_REPO_URL, NULL, NULL, SW_SHOWNORMAL); break;
         case ID_BTN_LOG_CLEAR:   SetWindowTextW(g.log_edit, L""); break;
+        case ID_BTN_LOG_COPY:    copy_log_to_clipboard(); break;
+        case ID_BTN_LOG_FOLDER:  open_logs_folder(); break;
         default: break;
     }
 }
@@ -1488,10 +1613,28 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT msg, WPARAM wp, LPARAM lp) {
             FillRect(dc, &body, g.br_bg);
             return 1;
         }
+        case WM_NOTIFY: {
+            LPNMHDR hdr = (LPNMHDR)lp;
+            if (hdr->code == NM_CUSTOMDRAW && hdr->idFrom >= 900 && hdr->idFrom < 900 + SEC_COUNT) {
+                LPNMLVCUSTOMDRAW cd = (LPNMLVCUSTOMDRAW)lp;
+                switch (cd->nmcd.dwDrawStage) {
+                    case CDDS_PREPAINT:
+                        return CDRF_NOTIFYITEMDRAW;
+                    case CDDS_ITEMPREPAINT: {
+                        bool sel = (ListView_GetItemState(hdr->hwndFrom, (int)cd->nmcd.dwItemSpec, LVIS_SELECTED) & LVIS_SELECTED) != 0;
+                        cd->clrText = CLR_TEXT;
+                        cd->clrTextBk = sel ? CLR_ROW_SEL : ((cd->nmcd.dwItemSpec & 1) ? CLR_ROW_ALT : CLR_ROW);
+                        return CDRF_NEWFONT;
+                    }
+                }
+            }
+            break;
+        }
         case WM_DRAWITEM: {
             const DRAWITEMSTRUCT *dis = (const DRAWITEMSTRUCT *)lp;
             if (dis->CtlID >= ID_NAV_FIRST && dis->CtlID < ID_NAV_FIRST + SEC_COUNT) draw_nav_button(dis);
             else if (dis->CtlID >= ID_CARD_FIRST && dis->CtlID < ID_CARD_FIRST + HOME_CARDS) draw_home_card(dis);
+            else if (dis->CtlID == ID_BADGE) draw_badge(dis);
             else if (dis->CtlType == ODT_BUTTON) draw_action_button(dis);
             else if (dis->CtlType == ODT_STATIC) draw_nav_group(dis, dis->hwndItem);
             return TRUE;
@@ -1505,7 +1648,12 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT msg, WPARAM wp, LPARAM lp) {
                 SetBkColor(dc, CLR_SHELL);
                 return (LRESULT)g.br_shell;
             }
-            SetTextColor(dc, ctl == g.section_desc[g.active] || ctl == g.status_label ? CLR_MUTED : CLR_TEXT);
+            bool muted = ctl == g.status_label || ctl == g.auto_ack_label ||
+                         ctl == g.about_line[1] || ctl == g.about_line[2];
+            for (int s = 0; s < SEC_COUNT && !muted; s++) muted = ctl == g.section_desc[s];
+            bool faint = false;
+            for (int i = 0; i < 3 && !faint; i++) faint = ctl == g.set_head[i];
+            SetTextColor(dc, faint ? CLR_FAINT : muted ? CLR_MUTED : CLR_TEXT);
             return (LRESULT)g.br_bg;
         }
         case WM_CTLCOLOREDIT: {
@@ -1554,6 +1702,7 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT msg, WPARAM wp, LPARAM lp) {
             InterlockedExchange(&g.busy, 0);
             enable_actions(TRUE);
             set_status_text(L"Ready");
+            InvalidateRect(g.console_badge, NULL, TRUE);
             if (g.last_job == JOB_SERVICE) reload_services();
             if (g.last_job == JOB_APP_UNINSTALL) { reload_installed_apps(); fill_home_info(); }
             return 0;
@@ -1562,8 +1711,9 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT msg, WPARAM wp, LPARAM lp) {
             PostQuitMessage(0);
             return 0;
         default:
-            return DefWindowProcW(wnd, msg, wp, lp);
+            break;
     }
+    return DefWindowProcW(wnd, msg, wp, lp);
 }
 
 /* ------------------------------------------------------------------ */
@@ -1619,22 +1769,19 @@ static HFONT make_font(int height, int weight, const wchar_t *face) {
 static void create_resources(void) {
     g.font = make_font(-13, FW_NORMAL, L"Segoe UI");
     g.font_semibold = make_font(-13, FW_SEMIBOLD, L"Segoe UI");
-    g.font_title = make_font(-21, FW_SEMIBOLD, L"Segoe UI");
+    g.font_title = make_font(-22, FW_SEMIBOLD, L"Segoe UI");
     g.font_big = make_font(-30, FW_LIGHT, L"Segoe UI");
     g.font_group = make_font(-11, FW_SEMIBOLD, L"Segoe UI");
     g.font_icon = make_font(-16, FW_NORMAL, L"Segoe MDL2 Assets");
     g.font_mono = make_font(-12, FW_NORMAL, L"Consolas");
     g.br_bg = CreateSolidBrush(CLR_BG);
     g.br_shell = CreateSolidBrush(CLR_SHELL);
-    g.br_card = CreateSolidBrush(CLR_CARD);
     g.br_input = CreateSolidBrush(CLR_INPUT);
-    g.br_row = CreateSolidBrush(CLR_ROW);
 }
 
 int WINAPI wWinMain(HINSTANCE inst, HINSTANCE prev, PWSTR cmdline, int show) {
     (void)prev; (void)cmdline;
     g.inst = inst;
-    g.hover_nav = -1;
 
     INITCOMMONCONTROLSEX icc = { sizeof icc, ICC_LISTVIEW_CLASSES | ICC_STANDARD_CLASSES };
     InitCommonControlsEx(&icc);
@@ -1644,28 +1791,32 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE prev, PWSTR cmdline, int show) {
     if (!load_catalogs()) return 1;
 
     create_resources();
+    init_log_file();
 
     WNDCLASSW wc = {0};
     wc.lpfnWndProc = wnd_proc;
     wc.hInstance = inst;
     wc.lpszClassName = WND_CLASS;
     wc.hCursor = LoadCursorW(NULL, (LPCWSTR)IDC_ARROW);
-    wc.hbrBackground = NULL; /* painted in WM_ERASEBKGND */
+    wc.hbrBackground = NULL;
     RegisterClassW(&wc);
 
     g.wnd = CreateWindowExW(0, WND_CLASS, APP_TITLE, WS_OVERLAPPEDWINDOW,
-                            CW_USEDEFAULT, CW_USEDEFAULT, 1180, 760, NULL, NULL, inst, NULL);
+                            CW_USEDEFAULT, CW_USEDEFAULT, 1200, 780, NULL, NULL, inst, NULL);
     if (!g.wnd) return 1;
     dark_titlebar(g.wnd);
 
     create_nav();
     create_sections();
-    create_log();
+    create_console();
 
-    char data_note[600];
-    snprintf(data_note, sizeof data_note, "Catalog data: %s (integrity verified)", g.data_dir);
-    wchar_t *wnote = utf8_to_wide_dup(data_note);
-    if (wnote) { SetWindowTextW(g.set_data_label, wnote); free(wnote); }
+    wchar_t *wdata = utf8_to_wide_dup(g.data_dir);
+    if (wdata) {
+        wchar_t note[600];
+        _snwprintf(note, 600, L"Catalog data: %s (SHA-256 verified at startup)", wdata);
+        SetWindowTextW(g.about_line[2], note);
+        free(wdata);
+    }
 
     fill_tweaks();
     fill_features();
@@ -1680,6 +1831,7 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE prev, PWSTR cmdline, int show) {
     g.active = SEC_HOME;
     select_section(SEC_HOME);
     SetTimer(g.wnd, IDT_TICK, 1000, NULL);
+    post_logf("Phantom %ls ready — catalogs verified, %d apps / %d tweaks loaded.", PHANTOM_VERSION, g.apps.count, g.tweaks.count);
 
     layout();
     ShowWindow(g.wnd, show);

@@ -123,6 +123,23 @@ bool ph_catalog_enumerate(const char *dir, const char *file, ph_catalog_entry_fn
             if (!ph_json_string_field(start, end, "displayName", e.id, sizeof e.id)) continue;
             snprintf(e.name, sizeof e.name, "%s", e.id);
             ph_json_string_field(start, end, "category", e.extra, sizeof e.extra);
+            static const struct { const char *key, *label; } srcs[] = {
+                {"wingetId", "winget"}, {"scoopId", "scoop"}, {"chocoId", "choco"},
+                {"pipId", "pip"}, {"npmId", "npm"}, {"dotNetToolId", "dotnet"},
+                {"powerShellGalleryId", "psgallery"},
+            };
+            char tmp[160];
+            size_t used = 0;
+            for (size_t k = 0; k < PH_ARRAY_LEN(srcs); k++) {
+                if (ph_json_string_field(start, end, srcs[k].key, tmp, sizeof tmp) && tmp[0]) {
+                    int wrote = snprintf(e.sources + used, sizeof e.sources - used, "%s%s",
+                                         used ? ", " : "", srcs[k].label);
+                    if (wrote > 0) used += (size_t)wrote;
+                    if (used >= sizeof e.sources - 1) break;
+                }
+            }
+            if (!e.sources[0] && ph_json_bool_field(start, end, "manualOnly"))
+                snprintf(e.sources, sizeof e.sources, "manual");
         } else {
             if (!ph_json_string_field(start, end, "id", e.id, sizeof e.id)) continue;
             ph_json_string_field(start, end, "name", e.name, sizeof e.name);

@@ -15,6 +15,7 @@ typedef struct {
     bool reversible;
     bool destructive;
     char extra[128];
+    char sources[96];   /* apps only: available package managers, e.g. "winget, choco" */
 } ph_catalog_entry;
 
 /* Called once per catalog entry; return false to stop enumeration early. */

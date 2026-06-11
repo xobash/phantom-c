@@ -23,6 +23,7 @@
 #include <dwmapi.h>
 #include <shellapi.h>
 #include <uxtheme.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -42,10 +43,15 @@
 #pragma comment(lib, "uxtheme.lib")
 #endif
 
-#define PHANTOM_VERSION   L"1.2.0"
+#define PHANTOM_VERSION   L"1.3.0"
 #define PHANTOM_REPO_URL  L"https://github.com/xobash/phantom-c"
 
 #include "gui_theme.h"
+
+ph_theme g_theme; /* active runtime theme */
+
+static void apply_theme(int theme_id);
+static void save_settings(void);
 
 #define APP_TITLE    L"Phantom"
 #define WND_CLASS    L"PhantomMainWindow"
@@ -84,6 +90,8 @@ enum {
     ID_BTN_ABOUT_GITHUB,
     ID_BTN_LOG_CLEAR, ID_BTN_LOG_COPY, ID_BTN_LOG_FOLDER,
     ID_BADGE,
+    ID_COMBO_THEME, ID_COMBO_ACCENT, ID_EDIT_ACCENT_HEX, ID_BTN_ACCENT_APPLY,
+    ID_PARTICLES,
     ID_SEARCH_FIRST = 300,
     ID_CARD_FIRST = 400,
 };
@@ -159,11 +167,17 @@ static struct {
     HWND upd_radio[3];
     HWND svc_combo;
 
-    /* Settings page: safety, automation, about */
-    HWND set_head[3];
+    /* Settings page: appearance, safety, automation, about */
+    HWND set_head[4];
     HWND set_chk[3];
     HWND auto_path, auto_browse, auto_force, auto_ack_label, auto_ack;
     HWND about_line[3];
+    HWND theme_combo, accent_combo, accent_hex;
+    HWND particle_canvas;
+    int theme_id;                /* PH_THEME_* */
+    int accent_mode;             /* PH_ACCENT_* */
+    COLORREF accent_custom;
+    bool opt_dry, opt_restore, opt_skip;
 
     /* Console */
     HWND console_title, console_badge, log_edit;
@@ -429,6 +443,136 @@ static bool confirm_if_dangerous(const ph_operation *op, bool *force_out) {
 }
 
 /* ------------------------------------------------------------------ */
+/* Appearance: settings persistence + runtime theme application        */
+/* ------------------------------------------------------------------ */
+
+#include "phantom/jsonlite.h"
+
+static void settings_path(wchar_t out[MAX_PATH]) {
+    out[0] = L'\0';
+    wchar_t base[MAX_PATH];
+    if (GetEnvironmentVariableW(L"LOCALAPPDATA", base, MAX_PATH)) {
+        wchar_t dir[MAX_PATH];
+        _snwprintf(dir, MAX_PATH, L"%s\\Phantom", base);
+        CreateDirectoryW(dir, NULL);
+        _snwprintf(out, MAX_PATH, L"%s\\settings.json", dir);
+    }
+}
+
+static COLORREF parse_hex_color(const char *hex, COLORREF fallback) {
+    if (!hex) return fallback;
+    if (*hex == '#') hex++;
+    if (strlen(hex) != 6) return fallback;
+    unsigned v = 0;
+    for (int i = 0; i < 6; i++) {
+        char c = hex[i];
+        unsigned d = (c >= '0' && c <= '9') ? (unsigned)(c - '0')
+                   : (c >= 'a' && c <= 'f') ? (unsigned)(c - 'a' + 10)
+                   : (c >= 'A' && c <= 'F') ? (unsigned)(c - 'A' + 10) : 16;
+        if (d > 15) return fallback;
+        v = v * 16 + d;
+    }
+    return RGB((v >> 16) & 0xFF, (v >> 8) & 0xFF, v & 0xFF);
+}
+
+static void load_settings(void) {
+    g.theme_id = PH_THEME_VERDANT;
+    g.accent_mode = PH_ACCENT_THEME;
+    g.accent_custom = RGB(0x80, 0x52, 0xFF);
+    g.opt_dry = false;
+    g.opt_restore = true;
+    g.opt_skip = false;
+    wchar_t wpath[MAX_PATH];
+    settings_path(wpath);
+    if (!wpath[0]) return;
+    char path[MAX_PATH * 3];
+    wide_to_utf8(wpath, path, sizeof path);
+    char *txt = ph_read_all_file(path);
+    if (!txt) return;
+    const char *end = txt + strlen(txt);
+    char v[64];
+    if (ph_json_string_field(txt, end, "theme", v, sizeof v) && _stricmp(v, "void") == 0) g.theme_id = PH_THEME_VOID;
+    if (ph_json_string_field(txt, end, "accentMode", v, sizeof v)) {
+        if (_stricmp(v, "windows") == 0) g.accent_mode = PH_ACCENT_WINDOWS;
+        else if (_stricmp(v, "custom") == 0) g.accent_mode = PH_ACCENT_CUSTOM;
+    }
+    if (ph_json_string_field(txt, end, "accentColor", v, sizeof v)) g.accent_custom = parse_hex_color(v, g.accent_custom);
+    if (ph_json_string_field(txt, end, "dryRun", v, sizeof v)) g.opt_dry = _stricmp(v, "on") == 0;
+    if (ph_json_string_field(txt, end, "restorePoint", v, sizeof v)) g.opt_restore = _stricmp(v, "on") == 0;
+    if (ph_json_string_field(txt, end, "skipCapture", v, sizeof v)) g.opt_skip = _stricmp(v, "on") == 0;
+    free(txt);
+}
+
+static void save_settings(void) {
+    wchar_t wpath[MAX_PATH];
+    settings_path(wpath);
+    if (!wpath[0]) return;
+    FILE *f = _wfopen(wpath, L"wb");
+    if (!f) return;
+    bool dry = g.set_chk[0] && SendMessageW(g.set_chk[0], BM_GETCHECK, 0, 0) == BST_CHECKED;
+    bool restore = g.set_chk[1] && SendMessageW(g.set_chk[1], BM_GETCHECK, 0, 0) == BST_CHECKED;
+    bool skip = g.set_chk[2] && SendMessageW(g.set_chk[2], BM_GETCHECK, 0, 0) == BST_CHECKED;
+    fprintf(f,
+        "{\n"
+        "  \"theme\": \"%s\",\n"
+        "  \"accentMode\": \"%s\",\n"
+        "  \"accentColor\": \"#%02X%02X%02X\",\n"
+        "  \"dryRun\": \"%s\",\n"
+        "  \"restorePoint\": \"%s\",\n"
+        "  \"skipCapture\": \"%s\"\n"
+        "}\n",
+        g.theme_id == PH_THEME_VOID ? "void" : "verdant",
+        g.accent_mode == PH_ACCENT_WINDOWS ? "windows" : g.accent_mode == PH_ACCENT_CUSTOM ? "custom" : "theme",
+        GetRValue(g.accent_custom), GetGValue(g.accent_custom), GetBValue(g.accent_custom),
+        dry ? "on" : "off", restore ? "on" : "off", skip ? "on" : "off");
+    fclose(f);
+}
+
+static COLORREF blend(COLORREF a, COLORREF b, int pct_a) {
+    return RGB((GetRValue(a) * pct_a + GetRValue(b) * (100 - pct_a)) / 100,
+               (GetGValue(a) * pct_a + GetGValue(b) * (100 - pct_a)) / 100,
+               (GetBValue(a) * pct_a + GetBValue(b) * (100 - pct_a)) / 100);
+}
+
+static void apply_accent_override(void) {
+    if (g.accent_mode == PH_ACCENT_THEME) return; /* keep curated theme colors */
+    COLORREF a = g_theme.accent;
+    if (g.accent_mode == PH_ACCENT_WINDOWS) {
+        DWORD argb = 0;
+        BOOL opaque = FALSE;
+        if (SUCCEEDED(DwmGetColorizationColor(&argb, &opaque)))
+            a = RGB((argb >> 16) & 0xFF, (argb >> 8) & 0xFF, argb & 0xFF);
+    } else {
+        a = g.accent_custom;
+    }
+    g_theme.accent = a;
+    g_theme.accent_br = blend(a, RGB(255, 255, 255), 55);
+    g_theme.btn_pri_pressed = blend(a, RGB(0, 0, 0), 75);
+    g_theme.btn_pri_disabled = blend(a, g_theme.bg, 40);
+    g_theme.row_sel = blend(a, g_theme.bg, 32);
+    g_theme.nav_sel = blend(a, g_theme.bg, 15);
+}
+
+static void rebuild_theme_resources(void);
+static void restyle_lists(void);
+
+static void apply_theme(int theme_id) {
+    g.theme_id = theme_id == PH_THEME_VOID ? PH_THEME_VOID : PH_THEME_VERDANT;
+    g_theme = PH_THEMES[g.theme_id];
+    apply_accent_override();
+    rebuild_theme_resources();
+    restyle_lists();
+    if (g.about_line[0]) {
+        wchar_t a0[192];
+        _snwprintf(a0, 192, L"Phantom %s (C edition, %s theme) — native, zero runtime dependencies",
+                   PHANTOM_VERSION, g_theme.name);
+        SetWindowTextW(g.about_line[0], a0);
+    }
+    if (g.wnd)
+        RedrawWindow(g.wnd, NULL, NULL, RDW_INVALIDATE | RDW_ERASE | RDW_ALLCHILDREN | RDW_UPDATENOW);
+}
+
+/* ------------------------------------------------------------------ */
 /* Dark-mode plumbing                                                  */
 /* ------------------------------------------------------------------ */
 
@@ -466,6 +610,15 @@ static void apply_dark_to_list(HWND lv) {
     /* Taller, airier rows via a 1px-wide state image list. */
     HIMAGELIST il = ImageList_Create(1, 26, ILC_COLOR32, 1, 1);
     if (il) ListView_SetImageList(lv, il, LVSIL_SMALL);
+}
+
+static void restyle_lists(void) {
+    for (int sec = 0; sec < SEC_COUNT; sec++) {
+        if (!g.list[sec]) continue;
+        ListView_SetBkColor(g.list[sec], CLR_ROW);
+        ListView_SetTextBkColor(g.list[sec], CLR_ROW);
+        ListView_SetTextColor(g.list[sec], CLR_TEXT);
+    }
 }
 
 /* ------------------------------------------------------------------ */
@@ -814,6 +967,7 @@ static void draw_action_button(const DRAWITEMSTRUCT *dis) {
 
     wchar_t label[96];
     GetWindowTextW(dis->hwndItem, label, 96);
+    if (g_theme.uppercase_buttons) CharUpperBuffW(label, (DWORD)lstrlenW(label));
     SetBkMode(dc, TRANSPARENT);
     SetTextColor(dc, text);
     HFONT old = (HFONT)SelectObject(dc, g.font_semibold);
@@ -879,6 +1033,74 @@ static void draw_badge(const DRAWITEMSTRUCT *dis) {
     SelectObject(dc, old);
 }
 
+/* The Void constellation: deterministic micro-shape field clustering
+ * toward a focal point, with a slow drift phase. Pure GDI; no textures,
+ * no gradients — the particles are the only visual interest, per spec. */
+static void draw_particles(const DRAWITEMSTRUCT *dis) {
+    HDC dc = dis->hDC;
+    RECT rc = dis->rcItem;
+    FillRect(dc, &rc, g.br_bg);
+    if (!g_theme.particles) return;
+    int w = rc.right - rc.left, h = rc.bottom - rc.top;
+    if (w < 40 || h < 40) return;
+    double phase = (double)(GetTickCount64() % 600000) / 600000.0 * 6.28318530718;
+    unsigned seed = 0x9E3779B9u;
+    for (int i = 0; i < 420; i++) {
+        seed = seed * 1664525u + 1013904223u;
+        unsigned r1 = (seed >> 8) & 0xFFFF;
+        seed = seed * 1664525u + 1013904223u;
+        unsigned r2 = (seed >> 8) & 0xFFFF;
+        seed = seed * 1664525u + 1013904223u;
+        unsigned r3 = (seed >> 8) & 0xFFFF;
+        /* cluster: average of two uniforms biases toward the focal center */
+        double fx = (((double)r1 / 65535.0) + ((double)r2 / 65535.0)) / 2.0;
+        double fy = (((double)r2 / 65535.0) + ((double)r3 / 65535.0)) / 2.0;
+        int x = rc.left + (int)(fx * w);
+        int y = rc.top + (int)(fy * h);
+        x += (int)(5.0 * sin(phase * 2.0 + (double)(i % 37)));
+        y += (int)(3.0 * cos(phase * 2.0 + (double)(i % 23)));
+        if (x < rc.left + 2 || x > rc.right - 6 || y < rc.top + 2 || y > rc.bottom - 6) continue;
+        int size = 2 + (int)(r3 % 4);
+        COLORREF c;
+        unsigned roll = r1 % 100;
+        if (roll < 52) c = blend(g_theme.text, g_theme.bg, 35 + (int)(r2 % 40));
+        else if (roll < 74) c = g_theme.accent;
+        else if (roll < 86) c = g_theme.lichen;
+        else if (roll < 94) c = g_theme.spark;
+        else c = g_theme.accent_br;
+        HBRUSH br = CreateSolidBrush(c);
+        switch (r2 % 3) {
+            case 0: { /* circle */
+                HPEN pen = CreatePen(PS_SOLID, 1, c);
+                HBRUSH ob = (HBRUSH)SelectObject(dc, br);
+                HPEN op = (HPEN)SelectObject(dc, pen);
+                Ellipse(dc, x, y, x + size, y + size);
+                SelectObject(dc, ob);
+                SelectObject(dc, op);
+                DeleteObject(pen);
+                break;
+            }
+            case 1: { /* square */
+                RECT pr = { x, y, x + size, y + size };
+                FillRect(dc, &pr, br);
+                break;
+            }
+            default: { /* diamond */
+                POINT pts[4] = { {x + size / 2, y}, {x + size, y + size / 2}, {x + size / 2, y + size}, {x, y + size / 2} };
+                HPEN pen = CreatePen(PS_SOLID, 1, c);
+                HBRUSH ob = (HBRUSH)SelectObject(dc, br);
+                HPEN op = (HPEN)SelectObject(dc, pen);
+                Polygon(dc, pts, 4);
+                SelectObject(dc, ob);
+                SelectObject(dc, op);
+                DeleteObject(pen);
+                break;
+            }
+        }
+        DeleteObject(br);
+    }
+}
+
 /* ------------------------------------------------------------------ */
 /* Live tiles + system info                                            */
 /* ------------------------------------------------------------------ */
@@ -901,8 +1123,10 @@ static void update_live_tiles(void) {
 
     _snwprintf(g.cards[3].value, 96, L"%d", ph_process_count());
 
-    if (g.active == SEC_HOME)
+    if (g.active == SEC_HOME) {
         for (int i = 0; i < HOME_CARDS; i++) InvalidateRect(g.card_wnd[i], NULL, FALSE);
+        if (g_theme.particles && g.particle_canvas) InvalidateRect(g.particle_canvas, NULL, FALSE);
+    }
 }
 
 typedef LONG (WINAPI *RtlGetVersionFn)(PRTL_OSVERSIONINFOW);
@@ -986,6 +1210,7 @@ static void create_home(void) {
         g.card_wnd[i] = mk(L"STATIC", L"", SS_OWNERDRAW, ID_CARD_FIRST + i);
     }
     for (int i = 0; i < HOME_INFO; i++) g.home_info[i] = mk(L"STATIC", L"", 0, 0);
+    g.particle_canvas = mk(L"STATIC", L"", SS_OWNERDRAW, ID_PARTICLES);
 }
 
 static void create_sections(void) {
@@ -1086,19 +1311,42 @@ static void create_sections(void) {
     mk_action(SEC_UPDATES, L"Apply mode", ID_BTN_UPDATE_APPLY, true);
     mk_action(SEC_UPDATES, L"Check current mode", ID_BTN_UPDATE_DETECT, false);
 
-    /* Settings: safety + automation + about */
+    /* Settings: appearance + safety + automation + about */
     create_section_header(SEC_SETTINGS, L"Settings",
-        L"Safety options, unattended automation, and information about this build.");
+        L"Appearance, safety options, unattended automation, and information about this build.");
 
-    g.set_head[0] = mk(L"STATIC", L"SAFETY", 0, 0);
+    g.set_head[0] = mk(L"STATIC", L"APPEARANCE", 0, 0);
     SendMessageW(g.set_head[0], WM_SETFONT, (WPARAM)g.font_group, TRUE);
+    g.theme_combo = mk(L"COMBOBOX", L"", CBS_DROPDOWNLIST | WS_VSCROLL, ID_COMBO_THEME);
+    SendMessageW(g.theme_combo, CB_ADDSTRING, 0, (LPARAM)L"Verdant — dark green");
+    SendMessageW(g.theme_combo, CB_ADDSTRING, 0, (LPARAM)L"Void — black · violet");
+    SendMessageW(g.theme_combo, CB_SETCURSEL, (WPARAM)g.theme_id, 0);
+    SetWindowTheme(g.theme_combo, L"DarkMode_CFD", NULL);
+    g.accent_combo = mk(L"COMBOBOX", L"", CBS_DROPDOWNLIST | WS_VSCROLL, ID_COMBO_ACCENT);
+    SendMessageW(g.accent_combo, CB_ADDSTRING, 0, (LPARAM)L"Theme accent");
+    SendMessageW(g.accent_combo, CB_ADDSTRING, 0, (LPARAM)L"Windows accent");
+    SendMessageW(g.accent_combo, CB_ADDSTRING, 0, (LPARAM)L"Custom…");
+    SendMessageW(g.accent_combo, CB_SETCURSEL, (WPARAM)g.accent_mode, 0);
+    SetWindowTheme(g.accent_combo, L"DarkMode_CFD", NULL);
+    g.accent_hex = mk_edit(ID_EDIT_ACCENT_HEX, L"#8052FF");
+    {
+        wchar_t hex[16];
+        _snwprintf(hex, 16, L"#%02X%02X%02X", GetRValue(g.accent_custom), GetGValue(g.accent_custom), GetBValue(g.accent_custom));
+        SetWindowTextW(g.accent_hex, hex);
+    }
+    mk_action(SEC_SETTINGS, L"Apply accent", ID_BTN_ACCENT_APPLY, false);
+
+    g.set_head[1] = mk(L"STATIC", L"SAFETY", 0, 0);
+    SendMessageW(g.set_head[1], WM_SETFONT, (WPARAM)g.font_group, TRUE);
     g.set_chk[0] = mk_check(L"Dry run only — log what would happen, change nothing", ID_CHK_SET_DRYRUN);
     g.set_chk[1] = mk_check(L"Create a system restore point before dangerous operations", ID_CHK_SET_RESTORE);
     g.set_chk[2] = mk_check(L"Continue even if pre-change state capture fails", ID_CHK_SET_SKIPCAPTURE);
-    SendMessageW(g.set_chk[1], BM_SETCHECK, BST_CHECKED, 0);
+    SendMessageW(g.set_chk[0], BM_SETCHECK, g.opt_dry ? BST_CHECKED : BST_UNCHECKED, 0);
+    SendMessageW(g.set_chk[1], BM_SETCHECK, g.opt_restore ? BST_CHECKED : BST_UNCHECKED, 0);
+    SendMessageW(g.set_chk[2], BM_SETCHECK, g.opt_skip ? BST_CHECKED : BST_UNCHECKED, 0);
 
-    g.set_head[1] = mk(L"STATIC", L"AUTOMATION — RUN A CONFIG", 0, 0);
-    SendMessageW(g.set_head[1], WM_SETFONT, (WPARAM)g.font_group, TRUE);
+    g.set_head[2] = mk(L"STATIC", L"AUTOMATION — RUN A CONFIG", 0, 0);
+    SendMessageW(g.set_head[2], WM_SETFONT, (WPARAM)g.font_group, TRUE);
     g.auto_path = mk_edit(ID_EDIT_AUTO_PATH, L"Path to automation config (.json)…");
     g.auto_browse = mk(L"BUTTON", L"Browse…", BS_OWNERDRAW, ID_BTN_AUTO_BROWSE);
     g.auto_force = mk_check(L"Allow dangerous operations (-ForceDangerous)", ID_CHK_AUTO_FORCE);
@@ -1107,9 +1355,9 @@ static void create_sections(void) {
     mk_action(SEC_SETTINGS, L"Dry run", ID_BTN_AUTO_DRYRUN, true);
     mk_action(SEC_SETTINGS, L"Run config", ID_BTN_AUTO_RUN, false);
 
-    g.set_head[2] = mk(L"STATIC", L"ABOUT", 0, 0);
-    SendMessageW(g.set_head[2], WM_SETFONT, (WPARAM)g.font_group, TRUE);
-    g.about_line[0] = mk(L"STATIC", L"Phantom " PHANTOM_VERSION L" (C edition, " PHANTOM_THEME_NAME L" theme) — native, zero runtime dependencies", 0, 0);
+    g.set_head[3] = mk(L"STATIC", L"ABOUT", 0, 0);
+    SendMessageW(g.set_head[3], WM_SETFONT, (WPARAM)g.font_group, TRUE);
+    g.about_line[0] = mk(L"STATIC", L"", 0, 0);
     g.about_line[1] = mk(L"STATIC", L"GPL-3.0 · " PHANTOM_REPO_URL, 0, 0);
     g.about_line[2] = mk(L"STATIC", L"", 0, 0);
     mk_action(SEC_SETTINGS, L"Open GitHub", ID_BTN_ABOUT_GITHUB, false);
@@ -1222,6 +1470,7 @@ static void show_section_controls(int sec, BOOL show) {
         case SEC_HOME:
             for (int i = 0; i < HOME_CARDS; i++) ShowWindow(g.card_wnd[i], cmd);
             for (int i = 0; i < HOME_INFO; i++) ShowWindow(g.home_info[i], cmd);
+            ShowWindow(g.particle_canvas, cmd);
             break;
         case SEC_SERVICES:
             ShowWindow(g.svc_combo, cmd);
@@ -1230,8 +1479,10 @@ static void show_section_controls(int sec, BOOL show) {
             for (int i = 0; i < 3; i++) ShowWindow(g.upd_radio[i], cmd);
             break;
         case SEC_SETTINGS:
-            for (int i = 0; i < 3; i++) ShowWindow(g.set_head[i], cmd);
+            for (int i = 0; i < 4; i++) ShowWindow(g.set_head[i], cmd);
             for (int i = 0; i < 3; i++) ShowWindow(g.set_chk[i], cmd);
+            ShowWindow(g.theme_combo, cmd); ShowWindow(g.accent_combo, cmd);
+            ShowWindow(g.accent_hex, cmd);
             ShowWindow(g.auto_path, cmd); ShowWindow(g.auto_browse, cmd);
             ShowWindow(g.auto_force, cmd); ShowWindow(g.auto_ack_label, cmd);
             ShowWindow(g.auto_ack, cmd);
@@ -1307,8 +1558,13 @@ static void layout(void) {
         MoveWindow(g.card_wnd[i], cx, body_y, w, 88, TRUE);
         cx += w + 14;
     }
-    for (int i = 0; i < HOME_INFO; i++)
-        MoveWindow(g.home_info[i], content_x + 2, body_y + 110 + i * 27, content_w, 24, TRUE);
+    {
+        int info_w = content_w * 54 / 100;
+        for (int i = 0; i < HOME_INFO; i++)
+            MoveWindow(g.home_info[i], content_x + 2, body_y + 110 + i * 27, info_w, 24, TRUE);
+        int px = content_x + info_w + 24;
+        MoveWindow(g.particle_canvas, px, body_y + 104, content_x + content_w - px, HOME_INFO * 27 + 10, TRUE);
+    }
 
     /* Search rows */
     for (int sec = 0; sec < SEC_COUNT; sec++) {
@@ -1338,27 +1594,34 @@ static void layout(void) {
     for (int i = 0; i < 3; i++)
         MoveWindow(g.upd_radio[i], content_x, body_y + i * 32, content_w, 26, TRUE);
 
-    /* Settings page: SAFETY / AUTOMATION / ABOUT */
+    /* Settings page: APPEARANCE / SAFETY / AUTOMATION / ABOUT */
     int sy = body_y;
     MoveWindow(g.set_head[0], content_x, sy, content_w, 18, TRUE);
-    sy += 24;
-    for (int i = 0; i < 3; i++) { MoveWindow(g.set_chk[i], content_x, sy, content_w, 24, TRUE); sy += 28; }
-    sy += 16;
+    sy += 22;
+    MoveWindow(g.theme_combo, content_x, sy, 200, 200, TRUE);
+    MoveWindow(g.accent_combo, content_x + 212, sy, 160, 200, TRUE);
+    MoveWindow(g.accent_hex, content_x + 384, sy, 100, 26, TRUE);
+    MoveWindow(g.buttons[SEC_SETTINGS][3], content_x + 496, sy - 1, 120, 28, TRUE);
+    sy += 38;
     MoveWindow(g.set_head[1], content_x, sy, content_w, 18, TRUE);
-    sy += 24;
+    sy += 22;
+    for (int i = 0; i < 3; i++) { MoveWindow(g.set_chk[i], content_x, sy, content_w, 24, TRUE); sy += 26; }
+    sy += 12;
+    MoveWindow(g.set_head[2], content_x, sy, content_w, 18, TRUE);
+    sy += 22;
     MoveWindow(g.auto_path, content_x, sy, content_w - 466, 27, TRUE);
     MoveWindow(g.auto_browse, content_x + content_w - 456, sy - 1, 96, 29, TRUE);
     MoveWindow(g.buttons[SEC_SETTINGS][0], content_x + content_w - 350, sy - 1, 116, 29, TRUE);
     MoveWindow(g.buttons[SEC_SETTINGS][1], content_x + content_w - 226, sy - 1, 116, 29, TRUE);
-    sy += 38;
+    sy += 34;
     MoveWindow(g.auto_force, content_x, sy, 350, 24, TRUE);
     MoveWindow(g.auto_ack_label, content_x + 370, sy + 2, 290, 20, TRUE);
     MoveWindow(g.auto_ack, content_x + 664, sy - 2, 250, 26, TRUE);
-    sy += 40;
-    MoveWindow(g.set_head[2], content_x, sy, content_w, 18, TRUE);
-    sy += 24;
-    for (int i = 0; i < 3; i++) { MoveWindow(g.about_line[i], content_x, sy, content_w - 160, 22, TRUE); sy += 25; }
-    MoveWindow(g.buttons[SEC_SETTINGS][2], content_x + content_w - 132, sy - 73, 132, 29, TRUE);
+    sy += 34;
+    MoveWindow(g.set_head[3], content_x, sy, content_w, 18, TRUE);
+    sy += 22;
+    for (int i = 0; i < 3; i++) { MoveWindow(g.about_line[i], content_x, sy, content_w - 160, 22, TRUE); sy += 24; }
+    MoveWindow(g.buttons[SEC_SETTINGS][2], content_x + content_w - 132, sy - 70, 132, 29, TRUE);
 }
 
 /* ------------------------------------------------------------------ */
@@ -1590,6 +1853,38 @@ static void on_command(WORD id, WORD code) {
         case ID_BTN_AUTO_DRYRUN: start_automation(true); break;
         case ID_BTN_AUTO_RUN:    start_automation(false); break;
         case ID_BTN_ABOUT_GITHUB: ShellExecuteW(g.wnd, L"open", PHANTOM_REPO_URL, NULL, NULL, SW_SHOWNORMAL); break;
+        case ID_COMBO_THEME:
+            if (code == CBN_SELCHANGE) {
+                apply_theme((int)SendMessageW(g.theme_combo, CB_GETCURSEL, 0, 0));
+                save_settings();
+            }
+            break;
+        case ID_COMBO_ACCENT:
+            if (code == CBN_SELCHANGE) {
+                g.accent_mode = (int)SendMessageW(g.accent_combo, CB_GETCURSEL, 0, 0);
+                apply_theme(g.theme_id);
+                save_settings();
+            }
+            break;
+        case ID_BTN_ACCENT_APPLY: {
+            wchar_t whex[16];
+            char hex[16];
+            GetWindowTextW(g.accent_hex, whex, 16);
+            wide_to_utf8(whex, hex, sizeof hex);
+            COLORREF c = parse_hex_color(hex, 0xFFFFFFFF);
+            if (c == 0xFFFFFFFF) { set_status_text(L"Enter a color as #RRGGBB."); break; }
+            g.accent_custom = c;
+            g.accent_mode = PH_ACCENT_CUSTOM;
+            SendMessageW(g.accent_combo, CB_SETCURSEL, PH_ACCENT_CUSTOM, 0);
+            apply_theme(g.theme_id);
+            save_settings();
+            break;
+        }
+        case ID_CHK_SET_DRYRUN:
+        case ID_CHK_SET_RESTORE:
+        case ID_CHK_SET_SKIPCAPTURE:
+            save_settings();
+            break;
         case ID_BTN_LOG_CLEAR:   SetWindowTextW(g.log_edit, L""); break;
         case ID_BTN_LOG_COPY:    copy_log_to_clipboard(); break;
         case ID_BTN_LOG_FOLDER:  open_logs_folder(); break;
@@ -1635,6 +1930,7 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT msg, WPARAM wp, LPARAM lp) {
             if (dis->CtlID >= ID_NAV_FIRST && dis->CtlID < ID_NAV_FIRST + SEC_COUNT) draw_nav_button(dis);
             else if (dis->CtlID >= ID_CARD_FIRST && dis->CtlID < ID_CARD_FIRST + HOME_CARDS) draw_home_card(dis);
             else if (dis->CtlID == ID_BADGE) draw_badge(dis);
+            else if (dis->CtlID == ID_PARTICLES) draw_particles(dis);
             else if (dis->CtlType == ODT_BUTTON) draw_action_button(dis);
             else if (dis->CtlType == ODT_STATIC) draw_nav_group(dis, dis->hwndItem);
             return TRUE;
@@ -1652,7 +1948,7 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT msg, WPARAM wp, LPARAM lp) {
                          ctl == g.about_line[1] || ctl == g.about_line[2];
             for (int s = 0; s < SEC_COUNT && !muted; s++) muted = ctl == g.section_desc[s];
             bool faint = false;
-            for (int i = 0; i < 3 && !faint; i++) faint = ctl == g.set_head[i];
+            for (int i = 0; i < 4 && !faint; i++) faint = ctl == g.set_head[i];
             SetTextColor(dc, faint ? CLR_FAINT : muted ? CLR_MUTED : CLR_TEXT);
             return (LRESULT)g.br_bg;
         }
@@ -1707,6 +2003,7 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT msg, WPARAM wp, LPARAM lp) {
             if (g.last_job == JOB_APP_UNINSTALL) { reload_installed_apps(); fill_home_info(); }
             return 0;
         case WM_DESTROY:
+            save_settings();
             KillTimer(wnd, IDT_TICK);
             PostQuitMessage(0);
             return 0;
@@ -1769,14 +2066,27 @@ static HFONT make_font(int height, int weight, const wchar_t *face) {
 static void create_resources(void) {
     g.font = make_font(-13, FW_NORMAL, L"Segoe UI");
     g.font_semibold = make_font(-13, FW_SEMIBOLD, L"Segoe UI");
-    g.font_title = make_font(-22, FW_SEMIBOLD, L"Segoe UI");
-    g.font_big = make_font(-30, FW_LIGHT, L"Segoe UI");
     g.font_group = make_font(-11, FW_SEMIBOLD, L"Segoe UI");
     g.font_icon = make_font(-16, FW_NORMAL, L"Segoe MDL2 Assets");
     g.font_mono = make_font(-12, FW_NORMAL, L"Consolas");
+    rebuild_theme_resources();
+}
+
+/* (Re)creates everything that depends on the active theme: surfaces and
+ * the display/title faces (Void uses ultra-thin weights, per DESIGN.md). */
+static void rebuild_theme_resources(void) {
+    if (g.br_bg) DeleteObject(g.br_bg);
+    if (g.br_shell) DeleteObject(g.br_shell);
+    if (g.br_input) DeleteObject(g.br_input);
     g.br_bg = CreateSolidBrush(CLR_BG);
     g.br_shell = CreateSolidBrush(CLR_SHELL);
     g.br_input = CreateSolidBrush(CLR_INPUT);
+    if (g.font_title) DeleteObject(g.font_title);
+    if (g.font_big) DeleteObject(g.font_big);
+    g.font_title = make_font(-22, g_theme.title_weight, L"Segoe UI");
+    g.font_big = make_font(g_theme.particles ? -36 : -30, g_theme.display_weight, L"Segoe UI");
+    for (int sec = 0; sec < SEC_COUNT; sec++)
+        if (g.section_title[sec]) SendMessageW(g.section_title[sec], WM_SETFONT, (WPARAM)g.font_title, TRUE);
 }
 
 int WINAPI wWinMain(HINSTANCE inst, HINSTANCE prev, PWSTR cmdline, int show) {
@@ -1790,6 +2100,9 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE prev, PWSTR cmdline, int show) {
     resolve_data_dir();
     if (!load_catalogs()) return 1;
 
+    load_settings();
+    g_theme = PH_THEMES[g.theme_id];
+    apply_accent_override();
     create_resources();
     init_log_file();
 
@@ -1828,6 +2141,7 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE prev, PWSTR cmdline, int show) {
     fill_home_info();
     update_live_tiles();
 
+    apply_theme(g.theme_id);
     g.active = SEC_HOME;
     select_section(SEC_HOME);
     SetTimer(g.wnd, IDT_TICK, 1000, NULL);

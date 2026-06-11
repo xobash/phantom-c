@@ -45,11 +45,8 @@ gui: build
 	$(WINCC) -std=c11 -O2 -Wall -Wextra -Iinclude \
 	  -o $(CLI_WIN_BIN) $(SRC) -lsrclient
 
-# Experimental "Void" design language (DESIGN.md): pure-black canvas,
-# violet accent, pill geometry. Same app, different compile-time theme.
-gui-void: build
-	$(WINCC) -std=c11 -O2 -Wall -Wextra -Iinclude -municode -DPHANTOM_THEME_VOID \
-	  -Wl,--subsystem,windows -o build/PhantomC-Void.exe $(GUI_SRC) $(CORE_SRC) $(GUI_LIBS)
+# Both design languages (Verdant + Void) ship in one binary since 1.3.0;
+# switch at runtime in Settings -> Appearance.
 
 # Assemble a ready-to-zip Windows release: GUI, CLI, catalogs, sample config.
 release: gui

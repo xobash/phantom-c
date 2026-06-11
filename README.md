@@ -26,14 +26,20 @@ and run `PhantomC.exe`.
 
 | Section | What it does |
 | --- | --- |
-| **Home** | Live system overview — uptime stopwatch, hardware, memory, catalog summary |
+| **Home** | Live dashboard — uptime stopwatch, CPU, memory, and process tiles, hardware and storage summary |
 | **App store** | Install / uninstall / upgrade 375 curated apps via winget, scoop, choco, pip, npm, dotnet, or PowerShell Gallery |
+| **Installed apps** | Everything registered on the PC (same data as Programs and Features) with uninstall and open-location |
 | **Tweaks** | 19 privacy and system tweaks with apply / undo / status detection |
 | **Windows features** | Toggle WSL, Hyper-V, Sandbox, and other optional features |
+| **Services** | Start, stop, restart, and reconfigure Windows services natively |
 | **Legacy panels** | One-click shortcuts to the classic control panels Settings hides |
 | **Quick fixes** | DNS flush, Windows Update reset, WinGet repair, and more |
 | **Windows Update** | Default / security-focused / fully disabled update policy |
 | **Automation** | Run a JSON config unattended — installs, tweaks, fixes, and update mode in one pass |
+
+The interface uses the same dark design language as the original WPF app —
+dark green-tinted shell, card-based dashboard, accent-marked grouped
+navigation with Segoe MDL2 icons, and a dark title bar.
 
 A console CLI (`phantom-cli.exe`) ships alongside the GUI for scripted and
 CI use:

@@ -17,8 +17,8 @@ BIN := build/phantom
 WINCC ?= x86_64-w64-mingw32-gcc
 GUI_BIN := build/PhantomC.exe
 CLI_WIN_BIN := build/phantom-cli.exe
-GUI_SRC := gui/phantom_gui.c
-GUI_LIBS := -lcomctl32 -lgdi32 -luser32 -lshell32 -ladvapi32 -lsrclient -lcomdlg32
+GUI_SRC := $(wildcard gui/*.c)
+GUI_LIBS := -lcomctl32 -lgdi32 -luser32 -lshell32 -ladvapi32 -lsrclient -lcomdlg32 -ldwmapi -luxtheme -lpsapi
 
 .PHONY: all test gui release clean
 

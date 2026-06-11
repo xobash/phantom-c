@@ -14,12 +14,18 @@ static const IID PH_IID_ID2D1Factory =
 
 typedef HRESULT(WINAPI *D2D1CreateFactoryFn)(D2D1_FACTORY_TYPE, REFIID, const D2D1_FACTORY_OPTIONS *, void **);
 
+/* NOTE: never call COM methods that return structs by value through the
+ * C vtable (GetSize, GetPixelSize, ...). On x64 the real implementation
+ * uses a hidden return-pointer convention that the C declarations in the
+ * mingw header do not match — calling them corrupts memory and crashes.
+ * We track the surface size ourselves instead. */
 static struct {
     HMODULE dll;
     ID2D1Factory *factory;
     ID2D1HwndRenderTarget *rt;
     ID2D1SolidColorBrush *brush;
     HWND canvas;
+    float width, height;
     bool active;
 } d2d;
 
@@ -38,6 +44,8 @@ static bool create_target(void) {
     UINT w = (UINT)(rc.right - rc.left), h = (UINT)(rc.bottom - rc.top);
     if (w == 0) w = 1;
     if (h == 0) h = 1;
+    d2d.width = (float)w;
+    d2d.height = (float)h;
 
     D2D1_RENDER_TARGET_PROPERTIES props;
     memset(&props, 0, sizeof props);
@@ -95,7 +103,10 @@ bool ph_d2d_active(void) {
 void ph_d2d_resize(int width, int height) {
     if (!d2d.active || !d2d.rt) return;
     D2D1_SIZE_U size = { (UINT32)(width > 0 ? width : 1), (UINT32)(height > 0 ? height : 1) };
-    ID2D1HwndRenderTarget_Resize(d2d.rt, &size);
+    if (SUCCEEDED(ID2D1HwndRenderTarget_Resize(d2d.rt, &size))) {
+        d2d.width = (float)size.width;
+        d2d.height = (float)size.height;
+    }
 }
 
 /* One particle quad rotated 45° = diamond; D2D transforms make it cheap. */
@@ -119,8 +130,7 @@ static void fill_diamond(float cx, float cy, float half) {
 bool ph_d2d_render(const ph_d2d_scene *scene, double t) {
     if (!d2d.active || !d2d.rt) return false;
 
-    D2D1_SIZE_F size = ID2D1HwndRenderTarget_GetSize(d2d.rt);
-    float w = size.width, h = size.height;
+    float w = d2d.width, h = d2d.height;
 
     ID2D1HwndRenderTarget_BeginDraw(d2d.rt);
     D2D1_COLOR_F bg = color_from(scene->bg, 1.0f);

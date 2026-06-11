@@ -44,7 +44,7 @@
 #pragma comment(lib, "uxtheme.lib")
 #endif
 
-#define PHANTOM_VERSION   L"1.4.0"
+#define PHANTOM_VERSION   L"1.4.1"
 #define PHANTOM_REPO_URL  L"https://github.com/xobash/phantom-c"
 
 #include "gui_theme.h"
@@ -2203,8 +2203,36 @@ static void rebuild_theme_resources(void) {
         if (g.section_title[sec]) SendMessageW(g.section_title[sec], WM_SETFONT, (WPARAM)g.font_title, TRUE);
 }
 
+/* Last-resort crash logger: a silent failure must never be silent again.
+ * Writes the exception code, faulting address, and module base to
+ * %LOCALAPPDATA%\Phantom\logs\crash.log. */
+static LONG WINAPI crash_handler(EXCEPTION_POINTERS *ep) {
+    wchar_t base[MAX_PATH];
+    if (GetEnvironmentVariableW(L"LOCALAPPDATA", base, MAX_PATH)) {
+        wchar_t dir[MAX_PATH], file[MAX_PATH];
+        _snwprintf(dir, MAX_PATH, L"%s\\Phantom", base);
+        CreateDirectoryW(dir, NULL);
+        _snwprintf(dir, MAX_PATH, L"%s\\Phantom\\logs", base);
+        CreateDirectoryW(dir, NULL);
+        _snwprintf(file, MAX_PATH, L"%s\\crash.log", dir);
+        FILE *f = _wfopen(file, L"ab");
+        if (f) {
+            SYSTEMTIME st;
+            GetLocalTime(&st);
+            fprintf(f, "[%04u-%02u-%02u %02u:%02u:%02u] Phantom crashed: code=0x%08lX addr=%p base=%p\n",
+                    st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond,
+                    ep && ep->ExceptionRecord ? ep->ExceptionRecord->ExceptionCode : 0,
+                    ep && ep->ExceptionRecord ? ep->ExceptionRecord->ExceptionAddress : NULL,
+                    (void *)GetModuleHandleW(NULL));
+            fclose(f);
+        }
+    }
+    return EXCEPTION_EXECUTE_HANDLER;
+}
+
 int WINAPI wWinMain(HINSTANCE inst, HINSTANCE prev, PWSTR cmdline, int show) {
     (void)prev; (void)cmdline;
+    SetUnhandledExceptionFilter(crash_handler);
     g.inst = inst;
 
     INITCOMMONCONTROLSEX icc = { sizeof icc, ICC_LISTVIEW_CLASSES | ICC_STANDARD_CLASSES };

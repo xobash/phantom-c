@@ -35,6 +35,7 @@
 #include "phantom/ps_runner.h"
 #include "phantom/status_parser.h"
 
+#include "gui_d2d.h"
 #include "gui_native.h"
 
 #ifdef _MSC_VER
@@ -43,7 +44,7 @@
 #pragma comment(lib, "uxtheme.lib")
 #endif
 
-#define PHANTOM_VERSION   L"1.3.1"
+#define PHANTOM_VERSION   L"1.4.0"
 #define PHANTOM_REPO_URL  L"https://github.com/xobash/phantom-c"
 
 #include "gui_theme.h"
@@ -52,6 +53,7 @@ ph_theme g_theme; /* active runtime theme */
 
 static void apply_theme(int theme_id);
 static void save_settings(void);
+static void d2d_render_constellation(void);
 
 #define APP_TITLE    L"Phantom"
 #define WND_CLASS    L"PhantomMainWindow"
@@ -577,6 +579,7 @@ static void apply_theme(int theme_id) {
     }
     if (g.wnd)
         RedrawWindow(g.wnd, NULL, NULL, RDW_INVALIDATE | RDW_ERASE | RDW_ALLCHILDREN | RDW_UPDATENOW);
+    if (ph_d2d_active()) d2d_render_constellation();
 }
 
 /* ------------------------------------------------------------------ */
@@ -1090,6 +1093,15 @@ static void draw_badge(const DRAWITEMSTRUCT *dis) {
     HFONT old = (HFONT)SelectObject(dc, g.font_group);
     DrawTextW(dc, working ? L"WORKING" : L"IDLE", -1, &rc, DT_SINGLELINE | DT_VCENTER | DT_CENTER | DT_NOPREFIX);
     SelectObject(dc, old);
+}
+
+static void d2d_render_constellation(void) {
+    ph_d2d_scene scene = {
+        .bg = CLR_BG, .bone = CLR_TEXT, .accent = CLR_ACCENT,
+        .accent_br = CLR_ACCENT_BR, .spark = g_theme.spark,
+        .lichen = g_theme.lichen, .particles = g_theme.particles,
+    };
+    ph_d2d_render(&scene, (double)GetTickCount64() / 1000.0);
 }
 
 /* The Void constellation: a deterministic micro-shape field clustered
@@ -1650,6 +1662,7 @@ static void layout(void) {
         int ph = (console_top - 56) - (body_y + 104);
         if (ph < 120) ph = 120;
         MoveWindow(g.particle_canvas, px, body_y + 104, content_x + content_w - px, ph, TRUE);
+        ph_d2d_resize(content_x + content_w - px, ph);
     }
 
     /* Search rows */
@@ -2016,7 +2029,10 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT msg, WPARAM wp, LPARAM lp) {
             if (dis->CtlID >= ID_NAV_FIRST && dis->CtlID < ID_NAV_FIRST + SEC_COUNT) draw_nav_button(dis);
             else if (dis->CtlID >= ID_CARD_FIRST && dis->CtlID < ID_CARD_FIRST + HOME_CARDS) draw_home_card(dis);
             else if (dis->CtlID == ID_BADGE) draw_badge(dis);
-            else if (dis->CtlID == ID_PARTICLES) draw_particles(dis);
+            else if (dis->CtlID == ID_PARTICLES) {
+                if (ph_d2d_active()) d2d_render_constellation();
+                else draw_particles(dis);
+            }
             else if (dis->CtlType == ODT_BUTTON) draw_action_button(dis);
             else if (dis->CtlType == ODT_STATIC) draw_nav_group(dis, dis->hwndItem);
             return TRUE;
@@ -2068,8 +2084,10 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT msg, WPARAM wp, LPARAM lp) {
                     InvalidateRect(g.nav[g.active], NULL, FALSE);
                     if (nav_anim_progress() >= 1.0) g.nav_anim_start = 0;
                 }
-                if (g.active == SEC_HOME && g_theme.particles && g.particle_canvas)
-                    InvalidateRect(g.particle_canvas, NULL, FALSE);
+                if (g.active == SEC_HOME && g_theme.particles && g.particle_canvas) {
+                    if (ph_d2d_active()) d2d_render_constellation();
+                    else InvalidateRect(g.particle_canvas, NULL, FALSE);
+                }
             }
             return 0;
         case WM_COMMAND:
@@ -2098,6 +2116,7 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT msg, WPARAM wp, LPARAM lp) {
             return 0;
         case WM_DESTROY:
             save_settings();
+            ph_d2d_shutdown();
             KillTimer(wnd, IDT_TICK);
             KillTimer(wnd, IDT_ANIM);
             PostQuitMessage(0);
@@ -2236,12 +2255,14 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE prev, PWSTR cmdline, int show) {
     fill_home_info();
     update_live_tiles();
 
+    bool gpu = ph_d2d_init(g.particle_canvas);
     apply_theme(g.theme_id);
     g.active = SEC_HOME;
     select_section(SEC_HOME);
     SetTimer(g.wnd, IDT_TICK, 1000, NULL);
     SetTimer(g.wnd, IDT_ANIM, 33, NULL);
     post_logf("Phantom %ls ready — catalogs verified, %d apps / %d tweaks loaded.", PHANTOM_VERSION, g.apps.count, g.tweaks.count);
+    post_logf("constellation renderer: %s", gpu ? "Direct2D (GPU, antialiased, vsync)" : "GDI (software fallback)");
 
     layout();
     ShowWindow(g.wnd, show);

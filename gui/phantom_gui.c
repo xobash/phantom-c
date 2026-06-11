@@ -43,7 +43,7 @@
 #pragma comment(lib, "uxtheme.lib")
 #endif
 
-#define PHANTOM_VERSION   L"1.3.0"
+#define PHANTOM_VERSION   L"1.3.1"
 #define PHANTOM_REPO_URL  L"https://github.com/xobash/phantom-c"
 
 #include "gui_theme.h"
@@ -66,6 +66,11 @@ static void save_settings(void);
 #define WM_APP_STATUS  (WM_APP + 3)
 
 #define IDT_TICK     1
+#define IDT_ANIM     2   /* ~30 fps: particles, nav transitions, hover */
+
+/* GWLP_USERDATA bits on owner-drawn buttons */
+#define BTNF_PRIMARY 0x1
+#define BTNF_HOVER   0x2
 
 enum section {
     SEC_HOME, SEC_STORE, SEC_APPS, SEC_TWEAKS, SEC_FEATURES, SEC_SERVICES,
@@ -195,6 +200,8 @@ static struct {
     volatile LONG busy;
     job current_job;
     job_kind last_job;
+
+    ULONGLONG nav_anim_start;    /* selection transition start tick */
 } g;
 
 /* ------------------------------------------------------------------ */
@@ -612,6 +619,33 @@ static void apply_dark_to_list(HWND lv) {
     if (il) ListView_SetImageList(lv, il, LVSIL_SMALL);
 }
 
+/* Hover tracking for owner-drawn buttons: nav links shift smoke -> bone on
+ * hover (no underline, no background, per the design spec); action pills
+ * brighten their border. */
+static LRESULT CALLBACK hover_subclass(HWND h, UINT msg, WPARAM wp, LPARAM lp, UINT_PTR id, DWORD_PTR ref) {
+    (void)id; (void)ref;
+    if (msg == WM_MOUSEMOVE) {
+        LONG_PTR d = GetWindowLongPtrW(h, GWLP_USERDATA);
+        if (!(d & BTNF_HOVER)) {
+            SetWindowLongPtrW(h, GWLP_USERDATA, d | BTNF_HOVER);
+            TRACKMOUSEEVENT t = { sizeof t, TME_LEAVE, h, 0 };
+            TrackMouseEvent(&t);
+            InvalidateRect(h, NULL, FALSE);
+        }
+    } else if (msg == WM_MOUSELEAVE) {
+        LONG_PTR d = GetWindowLongPtrW(h, GWLP_USERDATA);
+        if (d & BTNF_HOVER) {
+            SetWindowLongPtrW(h, GWLP_USERDATA, d & ~(LONG_PTR)BTNF_HOVER);
+            InvalidateRect(h, NULL, FALSE);
+        }
+    }
+    return DefSubclassProc(h, msg, wp, lp);
+}
+
+static void enable_hover(HWND h) {
+    SetWindowSubclass(h, hover_subclass, 1, 0);
+}
+
 static void restyle_lists(void) {
     for (int sec = 0; sec < SEC_COUNT; sec++) {
         if (!g.list[sec]) continue;
@@ -885,20 +919,33 @@ static void create_nav(void) {
             g.nav_groups[g.nav_group_count++] = grp;
         }
         g.nav[i] = mk(L"BUTTON", NAV[i].label, WS_VISIBLE | BS_OWNERDRAW, ID_NAV_FIRST + i);
+        enable_hover(g.nav[i]);
     }
+}
+
+/* Eased progress of the nav selection transition (0..1). */
+static double nav_anim_progress(void) {
+    if (!g.nav_anim_start) return 1.0;
+    double t = (double)(GetTickCount64() - g.nav_anim_start) / 180.0;
+    if (t >= 1.0) return 1.0;
+    double inv = 1.0 - t;
+    return 1.0 - inv * inv * inv; /* ease-out cubic */
 }
 
 static void draw_nav_button(const DRAWITEMSTRUCT *dis) {
     int sec = (int)dis->CtlID - ID_NAV_FIRST;
     bool selected = sec == g.active;
+    bool hovered = (GetWindowLongPtrW(dis->hwndItem, GWLP_USERDATA) & BTNF_HOVER) != 0;
     RECT rc = dis->rcItem;
     HDC dc = dis->hDC;
 
     FillRect(dc, &rc, g.br_shell);
 
     if (selected) {
-        HBRUSH br = CreateSolidBrush(CLR_NAV_SEL);
-        HPEN pen = CreatePen(PS_SOLID, 1, CLR_BORDER);
+        double e = nav_anim_progress();
+        /* pill fades in, accent bar grows from center — eased */
+        HBRUSH br = CreateSolidBrush(blend(CLR_NAV_SEL, CLR_SHELL, (int)(e * 100.0)));
+        HPEN pen = CreatePen(PS_SOLID, 1, blend(CLR_BORDER, CLR_SHELL, (int)(e * 100.0)));
         HBRUSH ob = (HBRUSH)SelectObject(dc, br);
         HPEN op = (HPEN)SelectObject(dc, pen);
         RoundRect(dc, rc.left, rc.top, rc.right, rc.bottom, RAD_NAV, RAD_NAV);
@@ -906,20 +953,27 @@ static void draw_nav_button(const DRAWITEMSTRUCT *dis) {
         SelectObject(dc, op);
         DeleteObject(br);
         DeleteObject(pen);
-        RECT bar = { rc.left + 4, rc.top + 8, rc.left + 7, rc.bottom - 8 };
-        HBRUSH accent = CreateSolidBrush(CLR_ACCENT);
-        FillRect(dc, &bar, accent);
-        DeleteObject(accent);
+        int full = (rc.bottom - rc.top) - 16;
+        int bar_h = (int)(full * e);
+        if (bar_h > 1) {
+            int mid = (rc.top + rc.bottom) / 2;
+            RECT bar = { rc.left + 4, mid - bar_h / 2, rc.left + 7, mid + bar_h / 2 };
+            HBRUSH accent = CreateSolidBrush(CLR_ACCENT);
+            FillRect(dc, &bar, accent);
+            DeleteObject(accent);
+        }
     }
 
+    COLORREF glyph = selected ? CLR_ACCENT_BR : hovered ? CLR_TEXT : CLR_MUTED;
+    COLORREF label = selected ? CLR_TEXT : hovered ? CLR_TEXT : CLR_MUTED;
     SetBkMode(dc, TRANSPARENT);
-    SetTextColor(dc, selected ? CLR_ACCENT_BR : CLR_MUTED);
+    SetTextColor(dc, glyph);
     HFONT old = (HFONT)SelectObject(dc, g.font_icon);
     RECT icon_rc = { rc.left + 14, rc.top, rc.left + 40, rc.bottom };
     DrawTextW(dc, NAV[sec].icon, -1, &icon_rc, DT_SINGLELINE | DT_VCENTER | DT_CENTER | DT_NOPREFIX);
 
     SelectObject(dc, selected ? g.font_semibold : g.font);
-    SetTextColor(dc, selected ? CLR_TEXT : CLR_MUTED);
+    SetTextColor(dc, label);
     RECT text_rc = { rc.left + 46, rc.top, rc.right - 8, rc.bottom };
     DrawTextW(dc, NAV[sec].label, -1, &text_rc, DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX | DT_END_ELLIPSIS);
     SelectObject(dc, old);
@@ -945,13 +999,17 @@ static void draw_nav_group(const DRAWITEMSTRUCT *dis, HWND wnd) {
 static void draw_action_button(const DRAWITEMSTRUCT *dis) {
     HDC dc = dis->hDC;
     RECT rc = dis->rcItem;
-    bool primary = GetWindowLongPtrW(dis->hwndItem, GWLP_USERDATA) == 1;
+    LONG_PTR flags = GetWindowLongPtrW(dis->hwndItem, GWLP_USERDATA);
+    bool primary = (flags & BTNF_PRIMARY) != 0;
+    bool hovered = (flags & BTNF_HOVER) != 0;
     bool disabled = (dis->itemState & ODS_DISABLED) != 0;
     bool pressed = (dis->itemState & ODS_SELECTED) != 0;
 
-    COLORREF fill = primary ? (disabled ? CLR_BTN_PRI_DISABLED : pressed ? CLR_BTN_PRI_PRESSED : CLR_ACCENT)
-                            : (pressed ? CLR_NAV_SEL : CLR_CARD2);
-    COLORREF border = primary ? (disabled ? CLR_BORDER : CLR_ACCENT_BR) : CLR_BORDER;
+    COLORREF fill = primary ? (disabled ? CLR_BTN_PRI_DISABLED : pressed ? CLR_BTN_PRI_PRESSED
+                               : hovered ? blend(CLR_ACCENT, RGB(255, 255, 255), 85) : CLR_ACCENT)
+                            : (pressed ? CLR_NAV_SEL : hovered ? blend(CLR_CARD2, CLR_TEXT, 92) : CLR_CARD2);
+    COLORREF border = primary ? (disabled ? CLR_BORDER : CLR_ACCENT_BR)
+                              : (hovered && !disabled ? CLR_FAINT : CLR_BORDER);
     COLORREF text = disabled ? CLR_BTN_TXT_DISABLED : CLR_TEXT;
 
     FillRect(dc, &rc, g.br_bg);
@@ -977,7 +1035,8 @@ static void draw_action_button(const DRAWITEMSTRUCT *dis) {
 
 static HWND mk_action(int sec, const wchar_t *label, int id, bool primary) {
     HWND b = mk(L"BUTTON", label, BS_OWNERDRAW, id);
-    SetWindowLongPtrW(b, GWLP_USERDATA, primary ? 1 : 0);
+    SetWindowLongPtrW(b, GWLP_USERDATA, primary ? BTNF_PRIMARY : 0);
+    enable_hover(b);
     g.buttons[sec][g.button_count[sec]++] = b;
     return b;
 }
@@ -1033,17 +1092,30 @@ static void draw_badge(const DRAWITEMSTRUCT *dis) {
     SelectObject(dc, old);
 }
 
-/* The Void constellation: deterministic micro-shape field clustering
- * toward a focal point, with a slow drift phase. Pure GDI; no textures,
- * no gradients — the particles are the only visual interest, per spec. */
+/* The Void constellation: a deterministic micro-shape field clustered
+ * toward a focal point. Every particle orbits its anchor at its own
+ * radius and angular speed and twinkles slowly — alive, never solid.
+ * Double-buffered GDI at ~30 fps; no textures, no gradients, per spec. */
 static void draw_particles(const DRAWITEMSTRUCT *dis) {
-    HDC dc = dis->hDC;
-    RECT rc = dis->rcItem;
+    HDC out = dis->hDC;
+    RECT orc = dis->rcItem;
+    int w = orc.right - orc.left, h = orc.bottom - orc.top;
+    if (w < 40 || h < 40) { FillRect(out, &orc, g.br_bg); return; }
+
+    HDC dc = CreateCompatibleDC(out);
+    HBITMAP bmp = CreateCompatibleBitmap(out, w, h);
+    HBITMAP obmp = (HBITMAP)SelectObject(dc, bmp);
+    RECT rc = { 0, 0, w, h };
     FillRect(dc, &rc, g.br_bg);
-    if (!g_theme.particles) return;
-    int w = rc.right - rc.left, h = rc.bottom - rc.top;
-    if (w < 40 || h < 40) return;
-    double phase = (double)(GetTickCount64() % 600000) / 600000.0 * 6.28318530718;
+    if (!g_theme.particles) {
+        BitBlt(out, orc.left, orc.top, w, h, dc, 0, 0, SRCCOPY);
+        SelectObject(dc, obmp);
+        DeleteObject(bmp);
+        DeleteDC(dc);
+        return;
+    }
+
+    double tsec = (double)GetTickCount64() / 1000.0;
     unsigned seed = 0x9E3779B9u;
     for (int i = 0; i < 420; i++) {
         seed = seed * 1664525u + 1013904223u;
@@ -1052,15 +1124,22 @@ static void draw_particles(const DRAWITEMSTRUCT *dis) {
         unsigned r2 = (seed >> 8) & 0xFFFF;
         seed = seed * 1664525u + 1013904223u;
         unsigned r3 = (seed >> 8) & 0xFFFF;
-        /* cluster: average of two uniforms biases toward the focal center */
+        /* anchor: average of two uniforms biases toward the focal center */
         double fx = (((double)r1 / 65535.0) + ((double)r2 / 65535.0)) / 2.0;
         double fy = (((double)r2 / 65535.0) + ((double)r3 / 65535.0)) / 2.0;
-        int x = rc.left + (int)(fx * w);
-        int y = rc.top + (int)(fy * h);
-        x += (int)(5.0 * sin(phase * 2.0 + (double)(i % 37)));
-        y += (int)(3.0 * cos(phase * 2.0 + (double)(i % 23)));
-        if (x < rc.left + 2 || x > rc.right - 6 || y < rc.top + 2 || y > rc.bottom - 6) continue;
+        /* per-particle orbit: radius 3..15 px, speed 0.15..1.0 rad/s */
+        double orbit_r = 3.0 + (double)(r3 % 1200) / 100.0;
+        double speed = 0.15 + (double)(r1 % 85) / 100.0;
+        if (i & 1) speed = -speed;
+        double ang = speed * tsec + (double)(r2 % 628) / 100.0;
+        int x = rc.left + (int)(fx * w + orbit_r * cos(ang));
+        int y = rc.top + (int)(fy * h + orbit_r * 0.6 * sin(ang));
+        if (x < rc.left + 2 || x > rc.right - 7 || y < rc.top + 2 || y > rc.bottom - 7) continue;
         int size = 2 + (int)(r3 % 4);
+        /* slow twinkle: each particle swells briefly on its own beat */
+        double tw = sin(tsec * 1.7 + (double)(i % 41));
+        if (tw > 0.86) size += 2;
+        else if (tw > 0.6) size += 1;
         COLORREF c;
         unsigned roll = r1 % 100;
         if (roll < 52) c = blend(g_theme.text, g_theme.bg, 35 + (int)(r2 % 40));
@@ -1099,6 +1178,10 @@ static void draw_particles(const DRAWITEMSTRUCT *dis) {
         }
         DeleteObject(br);
     }
+    BitBlt(out, orc.left, orc.top, w, h, dc, 0, 0, SRCCOPY);
+    SelectObject(dc, obmp);
+    DeleteObject(bmp);
+    DeleteDC(dc);
 }
 
 /* ------------------------------------------------------------------ */
@@ -1123,10 +1206,8 @@ static void update_live_tiles(void) {
 
     _snwprintf(g.cards[3].value, 96, L"%d", ph_process_count());
 
-    if (g.active == SEC_HOME) {
+    if (g.active == SEC_HOME)
         for (int i = 0; i < HOME_CARDS; i++) InvalidateRect(g.card_wnd[i], NULL, FALSE);
-        if (g_theme.particles && g.particle_canvas) InvalidateRect(g.particle_canvas, NULL, FALSE);
-    }
 }
 
 typedef LONG (WINAPI *RtlGetVersionFn)(PRTL_OSVERSIONINFOW);
@@ -1349,6 +1430,7 @@ static void create_sections(void) {
     SendMessageW(g.set_head[2], WM_SETFONT, (WPARAM)g.font_group, TRUE);
     g.auto_path = mk_edit(ID_EDIT_AUTO_PATH, L"Path to automation config (.json)…");
     g.auto_browse = mk(L"BUTTON", L"Browse…", BS_OWNERDRAW, ID_BTN_AUTO_BROWSE);
+    enable_hover(g.auto_browse);
     g.auto_force = mk_check(L"Allow dangerous operations (-ForceDangerous)", ID_CHK_AUTO_FORCE);
     g.auto_ack_label = mk(L"STATIC", L"Acknowledgement token (dangerous configs):", 0, 0);
     g.auto_ack = mk_edit(ID_EDIT_AUTO_ACK, L"I_UNDERSTAND_NO_ROLLBACK");
@@ -1384,6 +1466,7 @@ static void init_log_file(void) {
 static HWND mk_small_button(const wchar_t *label, int id) {
     HWND b = mk(L"BUTTON", label, WS_VISIBLE | BS_OWNERDRAW, id);
     SetWindowLongPtrW(b, GWLP_USERDATA, 0);
+    enable_hover(b);
     return b;
 }
 
@@ -1495,6 +1578,7 @@ static void show_section_controls(int sec, BOOL show) {
 
 static void select_section(int sec) {
     if (sec < 0 || sec >= SEC_COUNT) return;
+    if (sec != g.active) g.nav_anim_start = GetTickCount64();
     show_section_controls(g.active, FALSE);
     g.active = sec;
     show_section_controls(sec, TRUE);
@@ -1559,11 +1643,13 @@ static void layout(void) {
         cx += w + 14;
     }
     {
-        int info_w = content_w * 54 / 100;
+        int info_w = content_w * 52 / 100;
         for (int i = 0; i < HOME_INFO; i++)
             MoveWindow(g.home_info[i], content_x + 2, body_y + 110 + i * 27, info_w, 24, TRUE);
         int px = content_x + info_w + 24;
-        MoveWindow(g.particle_canvas, px, body_y + 104, content_x + content_w - px, HOME_INFO * 27 + 10, TRUE);
+        int ph = (console_top - 56) - (body_y + 104);
+        if (ph < 120) ph = 120;
+        MoveWindow(g.particle_canvas, px, body_y + 104, content_x + content_w - px, ph, TRUE);
     }
 
     /* Search rows */
@@ -1977,6 +2063,14 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT msg, WPARAM wp, LPARAM lp) {
         }
         case WM_TIMER:
             if (wp == IDT_TICK) update_live_tiles();
+            else if (wp == IDT_ANIM) {
+                if (g.nav_anim_start) {
+                    InvalidateRect(g.nav[g.active], NULL, FALSE);
+                    if (nav_anim_progress() >= 1.0) g.nav_anim_start = 0;
+                }
+                if (g.active == SEC_HOME && g_theme.particles && g.particle_canvas)
+                    InvalidateRect(g.particle_canvas, NULL, FALSE);
+            }
             return 0;
         case WM_COMMAND:
             on_command(LOWORD(wp), HIWORD(wp));
@@ -2005,6 +2099,7 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT msg, WPARAM wp, LPARAM lp) {
         case WM_DESTROY:
             save_settings();
             KillTimer(wnd, IDT_TICK);
+            KillTimer(wnd, IDT_ANIM);
             PostQuitMessage(0);
             return 0;
         default:
@@ -2145,6 +2240,7 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE prev, PWSTR cmdline, int show) {
     g.active = SEC_HOME;
     select_section(SEC_HOME);
     SetTimer(g.wnd, IDT_TICK, 1000, NULL);
+    SetTimer(g.wnd, IDT_ANIM, 33, NULL);
     post_logf("Phantom %ls ready — catalogs verified, %d apps / %d tweaks loaded.", PHANTOM_VERSION, g.apps.count, g.tweaks.count);
 
     layout();

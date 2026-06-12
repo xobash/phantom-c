@@ -35,7 +35,6 @@
 #include "phantom/ps_runner.h"
 #include "phantom/status_parser.h"
 
-#include "gui_d2d.h"
 #include "gui_native.h"
 
 #ifdef _MSC_VER
@@ -44,16 +43,15 @@
 #pragma comment(lib, "uxtheme.lib")
 #endif
 
-#define PHANTOM_VERSION   L"1.4.1"
+#define PHANTOM_VERSION   L"1.5.0"
 #define PHANTOM_REPO_URL  L"https://github.com/xobash/phantom-c"
 
 #include "gui_theme.h"
 
 ph_theme g_theme; /* active runtime theme */
 
-static void apply_theme(int theme_id);
+static void apply_theme(void);
 static void save_settings(void);
-static void d2d_render_constellation(void);
 
 #define APP_TITLE    L"Phantom"
 #define WND_CLASS    L"PhantomMainWindow"
@@ -66,6 +64,7 @@ static void d2d_render_constellation(void);
 #define WM_APP_LOG     (WM_APP + 1)
 #define WM_APP_DONE    (WM_APP + 2)
 #define WM_APP_STATUS  (WM_APP + 3)
+#define WM_APP_UPDMODE (WM_APP + 4)   /* wParam: detected update-mode radio index */
 
 #define IDT_TICK     1
 #define IDT_ANIM     2   /* ~30 fps: particles, nav transitions, hover */
@@ -97,8 +96,7 @@ enum {
     ID_BTN_ABOUT_GITHUB,
     ID_BTN_LOG_CLEAR, ID_BTN_LOG_COPY, ID_BTN_LOG_FOLDER,
     ID_BADGE,
-    ID_COMBO_THEME, ID_COMBO_ACCENT, ID_EDIT_ACCENT_HEX, ID_BTN_ACCENT_APPLY,
-    ID_PARTICLES,
+    ID_COMBO_ACCENT, ID_EDIT_ACCENT_HEX, ID_BTN_ACCENT_APPLY,
     ID_SEARCH_FIRST = 300,
     ID_CARD_FIRST = 400,
 };
@@ -119,7 +117,6 @@ typedef struct {
 typedef enum {
     JOB_OPERATION,
     JOB_DETECT,
-    JOB_DETECT_ALL,
     JOB_AUTOMATION,
     JOB_APP_UNINSTALL,
     JOB_SERVICE,
@@ -179,9 +176,7 @@ static struct {
     HWND set_chk[3];
     HWND auto_path, auto_browse, auto_force, auto_ack_label, auto_ack;
     HWND about_line[3];
-    HWND theme_combo, accent_combo, accent_hex;
-    HWND particle_canvas;
-    int theme_id;                /* PH_THEME_* */
+    HWND accent_combo, accent_hex;
     int accent_mode;             /* PH_ACCENT_* */
     COLORREF accent_custom;
     bool opt_dry, opt_restore, opt_skip;
@@ -204,6 +199,12 @@ static struct {
     job_kind last_job;
 
     ULONGLONG nav_anim_start;    /* selection transition start tick */
+
+    /* lazy status sweep */
+    char tweak_status[64][24];   /* by catalog index */
+    int *tweak_filter, tweak_filter_count;
+    HANDLE sweep;
+    volatile LONG sweep_stop;
 } g;
 
 /* ------------------------------------------------------------------ */
@@ -312,7 +313,16 @@ static void run_single_operation(job *j) {
         else
             post_item_status(j->section, j->item, ok ? (j->dry_run ? "Dry-run ok" : "Done") : "Failed");
     } else if (j->item >= 0 && j->undo) {
-        post_item_status(j->section, j->item, ok ? "Reverted" : "Undo failed");
+        if (ok && j->op.detect.script[0]) {
+            char output[PH_PROCESS_OUTPUT_MAX];
+            ph_error derr = {0};
+            bool dok = ph_ps_runner_execute(&j->op, &j->op.detect, false, output, sizeof output, &derr);
+            ph_operation_status st = dok ? ph_parse_operation_status(output) : PH_STATUS_UNKNOWN;
+            post_item_status(j->section, j->item,
+                             st == PH_STATUS_APPLIED ? "Applied" : st == PH_STATUS_NOT_APPLIED ? "Not applied" : "Unknown");
+        } else {
+            post_item_status(j->section, j->item, ok ? "Reverted" : "Undo failed");
+        }
     }
 }
 
@@ -329,19 +339,6 @@ static void run_detect(job *j) {
     const char *label = st == PH_STATUS_APPLIED ? "Applied" : st == PH_STATUS_NOT_APPLIED ? "Not applied" : "Unknown";
     post_logf("%s status: %s", j->op.id, label);
     post_item_status(j->section, j->item, label);
-}
-
-static void run_detect_all(job *j) {
-    (void)j;
-    for (int i = 0; i < g.tweaks.count; i++) {
-        job d = {0};
-        d.kind = JOB_DETECT;
-        d.section = SEC_TWEAKS;
-        d.item = i;
-        ph_error err = {0};
-        if (ph_make_tweak_operation(g.tweaks.items[i].id, &d.op, &err)) run_detect(&d);
-        else post_logf("%s", err.message);
-    }
 }
 
 static void run_automation(job *j) {
@@ -397,13 +394,57 @@ static void run_service_job(job *j) {
     post_logf("service %s (%s): %s", j->command, j->target, msg);
 }
 
+/* Lazy status sweep: starts shortly after launch on a below-normal
+ * priority thread so core features come up first, then walks every
+ * tweak, feature, and update mode and reports their detected state.
+ * Runs independently of the user job worker (concurrent PowerShell
+ * detection reads are harmless). */
+static DWORD WINAPI sweep_main(LPVOID param) {
+    (void)param;
+    Sleep(1500);
+    post_log("status sweep: checking tweaks, features, and update mode in the background…");
+    for (int i = 0; i < g.tweaks.count && !g.sweep_stop; i++) {
+        ph_error err = {0};
+        ph_operation op;
+        if (!ph_make_tweak_operation(g.tweaks.items[i].id, &op, &err) || !op.detect.script[0]) continue;
+        char output[PH_PROCESS_OUTPUT_MAX];
+        bool ok = ph_ps_runner_execute(&op, &op.detect, false, output, sizeof output, &err);
+        ph_operation_status st = ok ? ph_parse_operation_status(output) : PH_STATUS_UNKNOWN;
+        post_item_status(SEC_TWEAKS, i,
+                         st == PH_STATUS_APPLIED ? "Applied" : st == PH_STATUS_NOT_APPLIED ? "Not applied" : "Unknown");
+    }
+    for (int i = 0; i < g.features.count && !g.sweep_stop; i++) {
+        ph_error err = {0};
+        ph_operation op;
+        if (!ph_make_feature_operation(g.features.items[i].id, &op, &err) || !op.detect.script[0]) continue;
+        char output[PH_PROCESS_OUTPUT_MAX];
+        bool ok = ph_ps_runner_execute(&op, &op.detect, false, output, sizeof output, &err);
+        ph_operation_status st = ok ? ph_parse_operation_status(output) : PH_STATUS_UNKNOWN;
+        post_item_status(SEC_FEATURES, i,
+                         st == PH_STATUS_APPLIED ? "Enabled" : st == PH_STATUS_NOT_APPLIED ? "Disabled" : "Unknown");
+    }
+    static const char *modes[3] = { "Default", "Security", "Disable All" };
+    for (int m = 0; m < 3 && !g.sweep_stop; m++) {
+        ph_error err = {0};
+        ph_operation op;
+        if (!ph_make_update_operation(modes[m], &op, &err)) continue;
+        char output[PH_PROCESS_OUTPUT_MAX];
+        if (ph_ps_runner_execute(&op, &op.detect, false, output, sizeof output, &err) &&
+            ph_parse_operation_status(output) == PH_STATUS_APPLIED) {
+            PostMessageW(g.wnd, WM_APP_UPDMODE, (WPARAM)m, 0);
+            break;
+        }
+    }
+    if (!g.sweep_stop) post_log("status sweep complete.");
+    return 0;
+}
+
 static DWORD WINAPI worker_main(LPVOID param) {
     (void)param;
     job *j = &g.current_job;
     switch (j->kind) {
         case JOB_OPERATION:     run_single_operation(j); break;
         case JOB_DETECT:        run_detect(j); break;
-        case JOB_DETECT_ALL:    run_detect_all(j); break;
         case JOB_AUTOMATION:    run_automation(j); break;
         case JOB_APP_UNINSTALL: run_app_uninstall(j); break;
         case JOB_SERVICE:       run_service_job(j); break;
@@ -485,7 +526,6 @@ static COLORREF parse_hex_color(const char *hex, COLORREF fallback) {
 }
 
 static void load_settings(void) {
-    g.theme_id = PH_THEME_VERDANT;
     g.accent_mode = PH_ACCENT_THEME;
     g.accent_custom = RGB(0x80, 0x52, 0xFF);
     g.opt_dry = false;
@@ -500,7 +540,6 @@ static void load_settings(void) {
     if (!txt) return;
     const char *end = txt + strlen(txt);
     char v[64];
-    if (ph_json_string_field(txt, end, "theme", v, sizeof v) && _stricmp(v, "void") == 0) g.theme_id = PH_THEME_VOID;
     if (ph_json_string_field(txt, end, "accentMode", v, sizeof v)) {
         if (_stricmp(v, "windows") == 0) g.accent_mode = PH_ACCENT_WINDOWS;
         else if (_stricmp(v, "custom") == 0) g.accent_mode = PH_ACCENT_CUSTOM;
@@ -523,14 +562,12 @@ static void save_settings(void) {
     bool skip = g.set_chk[2] && SendMessageW(g.set_chk[2], BM_GETCHECK, 0, 0) == BST_CHECKED;
     fprintf(f,
         "{\n"
-        "  \"theme\": \"%s\",\n"
         "  \"accentMode\": \"%s\",\n"
         "  \"accentColor\": \"#%02X%02X%02X\",\n"
         "  \"dryRun\": \"%s\",\n"
         "  \"restorePoint\": \"%s\",\n"
         "  \"skipCapture\": \"%s\"\n"
         "}\n",
-        g.theme_id == PH_THEME_VOID ? "void" : "verdant",
         g.accent_mode == PH_ACCENT_WINDOWS ? "windows" : g.accent_mode == PH_ACCENT_CUSTOM ? "custom" : "theme",
         GetRValue(g.accent_custom), GetGValue(g.accent_custom), GetBValue(g.accent_custom),
         dry ? "on" : "off", restore ? "on" : "off", skip ? "on" : "off");
@@ -565,21 +602,18 @@ static void apply_accent_override(void) {
 static void rebuild_theme_resources(void);
 static void restyle_lists(void);
 
-static void apply_theme(int theme_id) {
-    g.theme_id = theme_id == PH_THEME_VOID ? PH_THEME_VOID : PH_THEME_VERDANT;
-    g_theme = PH_THEMES[g.theme_id];
+static void apply_theme(void) {
+    g_theme = PH_THEME_VERDANT_DEF;
     apply_accent_override();
     rebuild_theme_resources();
     restyle_lists();
     if (g.about_line[0]) {
         wchar_t a0[192];
-        _snwprintf(a0, 192, L"Phantom %s (C edition, %s theme) — native, zero runtime dependencies",
-                   PHANTOM_VERSION, g_theme.name);
+        _snwprintf(a0, 192, L"Phantom %s (C edition) — native, zero runtime dependencies", PHANTOM_VERSION);
         SetWindowTextW(g.about_line[0], a0);
     }
     if (g.wnd)
         RedrawWindow(g.wnd, NULL, NULL, RDW_INVALIDATE | RDW_ERASE | RDW_ALLCHILDREN | RDW_UPDATENOW);
-    if (ph_d2d_active()) d2d_render_constellation();
 }
 
 /* ------------------------------------------------------------------ */
@@ -725,6 +759,123 @@ static HWND mk_list(int section) {
     return lv;
 }
 
+static bool is_card_list(int sec) {
+    return sec == SEC_TWEAKS || sec == SEC_STORE || sec == SEC_APPS;
+}
+
+static const char *risk_label(const ph_catalog_entry *e);
+
+/* Wintoys-style rows: headerless list where every row is a rounded card
+ * with a small colored strip, a semibold title, a muted subtitle, and
+ * right-aligned detail text. */
+static HWND mk_card_list(int section) {
+    HWND lv = CreateWindowExW(0, WC_LISTVIEWW, L"",
+                              WS_CHILD | LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOCOLUMNHEADER,
+                              0, 0, 10, 10, g.wnd, (HMENU)(INT_PTR)(900 + section), g.inst, NULL);
+    SendMessageW(lv, WM_SETFONT, (WPARAM)g.font, TRUE);
+    ListView_SetExtendedListViewStyle(lv, LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
+    ListView_SetBkColor(lv, CLR_BG);
+    SetWindowTheme(lv, L"DarkMode_Explorer", NULL);
+    if (g_allow_dark_for_window) g_allow_dark_for_window(lv, TRUE);
+    lv_add_column(lv, 0, L"", 600);
+    HIMAGELIST il = ImageList_Create(1, 58, ILC_COLOR32, 1, 1);
+    if (il) ListView_SetImageList(lv, il, LVSIL_SMALL);
+    return lv;
+}
+
+static void draw_text_clipped(HDC dc, const char *utf8, RECT *rc, HFONT font, COLORREF color, UINT extra) {
+    wchar_t *w = utf8_to_wide_dup(utf8);
+    if (!w) return;
+    HFONT old = (HFONT)SelectObject(dc, font);
+    SetTextColor(dc, color);
+    DrawTextW(dc, w, -1, rc, DT_SINGLELINE | DT_NOPREFIX | DT_END_ELLIPSIS | extra);
+    SelectObject(dc, old);
+    free(w);
+}
+
+/* Resolve the card content for one visible row of a card list. */
+static void card_content(int sec, int row,
+                         const char **title, const char **sub,
+                         const char **right_top, const char **right_bottom,
+                         COLORREF *strip, COLORREF *right_top_color) {
+    *title = *sub = *right_top = *right_bottom = "";
+    *strip = CLR_ACCENT;
+    *right_top_color = CLR_MUTED;
+    static char meta[128];
+    if (sec == SEC_TWEAKS) {
+        if (row >= g.tweak_filter_count) return;
+        int idx = g.tweak_filter[row];
+        const ph_catalog_entry *e = &g.tweaks.items[idx];
+        *title = e->name[0] ? e->name : e->id;
+        *sub = e->description;
+        const char *st = g.tweak_status[idx][0] ? g.tweak_status[idx] : "Checking…";
+        *right_top = st;
+        if (strcmp(st, "Applied") == 0) { *right_top_color = CLR_OK; *strip = CLR_OK; }
+        else if (strcmp(st, "Not applied") == 0) { *right_top_color = CLR_MUTED; *strip = CLR_BORDER; }
+        else { *right_top_color = CLR_FAINT; *strip = CLR_BORDER; }
+        snprintf(meta, sizeof meta, "%s · %s", risk_label(e), e->reversible ? "Reversible" : "One-way");
+        *right_bottom = meta;
+    } else if (sec == SEC_STORE) {
+        if (row >= g.store_filter_count) return;
+        const ph_catalog_entry *e = &g.apps.items[g.store_filter[row]];
+        *title = e->name;
+        *sub = e->description;
+        *right_top = e->extra[0] ? e->extra : "—";
+        *right_bottom = e->sources[0] ? e->sources : "—";
+    } else if (sec == SEC_APPS) {
+        if (row >= g.iapp_filter_count) return;
+        const ph_installed_app *a = &g.iapps[g.iapp_filter[row]];
+        *title = a->name;
+        *sub = a->publisher[0] ? a->publisher : "Unknown publisher";
+        *right_top = a->version[0] ? a->version : "";
+    }
+}
+
+static void draw_card_row(int sec, LPNMLVCUSTOMDRAW cd) {
+    HWND lv = cd->nmcd.hdr.hwndFrom;
+    int row = (int)cd->nmcd.dwItemSpec;
+    HDC dc = cd->nmcd.hdc;
+    RECT rc;
+    ListView_GetItemRect(lv, row, &rc, LVIR_BOUNDS);
+
+    HBRUSH bgbr = CreateSolidBrush(CLR_BG);
+    FillRect(dc, &rc, bgbr);
+    DeleteObject(bgbr);
+
+    bool sel = (ListView_GetItemState(lv, row, LVIS_SELECTED) & LVIS_SELECTED) != 0;
+    RECT card = { rc.left + 2, rc.top + 3, rc.right - 4, rc.bottom - 3 };
+    HBRUSH br = CreateSolidBrush(sel ? blend(CLR_ACCENT, CLR_BG, 18) : CLR_CARD);
+    HPEN pen = CreatePen(PS_SOLID, 1, sel ? CLR_ACCENT_BR : CLR_BORDER);
+    HBRUSH ob = (HBRUSH)SelectObject(dc, br);
+    HPEN op = (HPEN)SelectObject(dc, pen);
+    RoundRect(dc, card.left, card.top, card.right, card.bottom, 10, 10);
+    SelectObject(dc, ob);
+    SelectObject(dc, op);
+    DeleteObject(br);
+    DeleteObject(pen);
+
+    const char *title, *sub, *right_top, *right_bottom;
+    COLORREF strip, right_top_color;
+    card_content(sec, row, &title, &sub, &right_top, &right_bottom, &strip, &right_top_color);
+
+    /* colored strip, wintoys-style */
+    RECT bar = { card.left + 16, card.top + 8, card.left + 44, card.top + 11 };
+    HBRUSH sbr = CreateSolidBrush(strip);
+    FillRect(dc, &bar, sbr);
+    DeleteObject(sbr);
+
+    SetBkMode(dc, TRANSPARENT);
+    int right_w = 170;
+    RECT title_rc = { card.left + 16, card.top + 13, card.right - right_w - 12, card.top + 33 };
+    draw_text_clipped(dc, title, &title_rc, g.font_semibold, CLR_TEXT, 0);
+    RECT sub_rc = { card.left + 16, card.top + 33, card.right - right_w - 12, card.bottom - 6 };
+    draw_text_clipped(dc, sub, &sub_rc, g.font, CLR_FAINT, 0);
+    RECT rt_rc = { card.right - right_w, card.top + 13, card.right - 14, card.top + 33 };
+    draw_text_clipped(dc, right_top, &rt_rc, g.font_semibold, right_top_color, DT_RIGHT);
+    RECT rb_rc = { card.right - right_w, card.top + 33, card.right - 14, card.bottom - 6 };
+    draw_text_clipped(dc, right_bottom, &rb_rc, g.font, CLR_FAINT, DT_RIGHT);
+}
+
 static void mk_search(int sec, const wchar_t *cue) {
     g.search[sec] = mk_edit(ID_SEARCH_FIRST + sec, cue);
 }
@@ -732,6 +883,7 @@ static void mk_search(int sec, const wchar_t *cue) {
 static const char *risk_label(const ph_catalog_entry *e) {
     return e->risk[0] ? e->risk : "Advanced";
 }
+
 
 /* ------------------------------------------------------------------ */
 /* List fills                                                          */
@@ -744,17 +896,28 @@ static void show_count(int shown, int total, const wchar_t *noun) {
     set_status_text(label);
 }
 
+static void get_filter_text_fwd(int sec, char *out, size_t n);
+
 static void fill_tweaks(void) {
+    char filter[256];
+    get_filter_text_fwd(SEC_TWEAKS, filter, sizeof filter);
     HWND lv = g.list[SEC_TWEAKS];
+    SendMessageW(lv, WM_SETREDRAW, FALSE, 0);
     ListView_DeleteAllItems(lv);
+    g.tweak_filter_count = 0;
+    int row = 0;
     for (int i = 0; i < g.tweaks.count; i++) {
         const ph_catalog_entry *e = &g.tweaks.items[i];
-        lv_set(lv, i, 0, e->name[0] ? e->name : e->id);
-        lv_set(lv, i, 1, risk_label(e));
-        lv_set(lv, i, 2, e->reversible ? "Yes" : "No");
-        lv_set(lv, i, 3, "—");
-        lv_set(lv, i, 4, e->description);
+        if (filter[0] &&
+            !ph_contains_i(e->name, filter) &&
+            !ph_contains_i(e->description, filter) &&
+            !ph_contains_i(e->risk, filter)) continue;
+        g.tweak_filter[g.tweak_filter_count++] = i;
+        lv_set(lv, row, 0, e->name[0] ? e->name : e->id);
+        row++;
     }
+    SendMessageW(lv, WM_SETREDRAW, TRUE, 0);
+    InvalidateRect(lv, NULL, TRUE);
 }
 
 static void fill_features(void) {
@@ -796,6 +959,10 @@ static void get_filter_text(int sec, char *out, size_t n) {
     wide_to_utf8(w, out, n);
 }
 
+static void get_filter_text_fwd(int sec, char *out, size_t n) {
+    get_filter_text(sec, out, n);
+}
+
 static void fill_store(void) {
     char filter[256];
     get_filter_text(SEC_STORE, filter, sizeof filter);
@@ -813,9 +980,6 @@ static void fill_store(void) {
             !ph_contains_i(e->description, filter)) continue;
         g.store_filter[g.store_filter_count++] = i;
         lv_set(lv, row, 0, e->name);
-        lv_set(lv, row, 1, e->extra[0] ? e->extra : "—");
-        lv_set(lv, row, 2, e->sources[0] ? e->sources : "—");
-        lv_set(lv, row, 3, e->description);
         row++;
     }
     SendMessageW(lv, WM_SETREDRAW, TRUE, 0);
@@ -838,8 +1002,6 @@ static void fill_installed_apps(void) {
             !ph_contains_i(a->publisher, filter)) continue;
         g.iapp_filter[g.iapp_filter_count++] = i;
         lv_set(lv, row, 0, a->name);
-        lv_set(lv, row, 1, a->version[0] ? a->version : "—");
-        lv_set(lv, row, 2, a->publisher[0] ? a->publisher : "—");
         row++;
     }
     SendMessageW(lv, WM_SETREDRAW, TRUE, 0);
@@ -1028,7 +1190,6 @@ static void draw_action_button(const DRAWITEMSTRUCT *dis) {
 
     wchar_t label[96];
     GetWindowTextW(dis->hwndItem, label, 96);
-    if (g_theme.uppercase_buttons) CharUpperBuffW(label, (DWORD)lstrlenW(label));
     SetBkMode(dc, TRANSPARENT);
     SetTextColor(dc, text);
     HFONT old = (HFONT)SelectObject(dc, g.font_semibold);
@@ -1093,107 +1254,6 @@ static void draw_badge(const DRAWITEMSTRUCT *dis) {
     HFONT old = (HFONT)SelectObject(dc, g.font_group);
     DrawTextW(dc, working ? L"WORKING" : L"IDLE", -1, &rc, DT_SINGLELINE | DT_VCENTER | DT_CENTER | DT_NOPREFIX);
     SelectObject(dc, old);
-}
-
-static void d2d_render_constellation(void) {
-    ph_d2d_scene scene = {
-        .bg = CLR_BG, .bone = CLR_TEXT, .accent = CLR_ACCENT,
-        .accent_br = CLR_ACCENT_BR, .spark = g_theme.spark,
-        .lichen = g_theme.lichen, .particles = g_theme.particles,
-    };
-    ph_d2d_render(&scene, (double)GetTickCount64() / 1000.0);
-}
-
-/* The Void constellation: a deterministic micro-shape field clustered
- * toward a focal point. Every particle orbits its anchor at its own
- * radius and angular speed and twinkles slowly — alive, never solid.
- * Double-buffered GDI at ~30 fps; no textures, no gradients, per spec. */
-static void draw_particles(const DRAWITEMSTRUCT *dis) {
-    HDC out = dis->hDC;
-    RECT orc = dis->rcItem;
-    int w = orc.right - orc.left, h = orc.bottom - orc.top;
-    if (w < 40 || h < 40) { FillRect(out, &orc, g.br_bg); return; }
-
-    HDC dc = CreateCompatibleDC(out);
-    HBITMAP bmp = CreateCompatibleBitmap(out, w, h);
-    HBITMAP obmp = (HBITMAP)SelectObject(dc, bmp);
-    RECT rc = { 0, 0, w, h };
-    FillRect(dc, &rc, g.br_bg);
-    if (!g_theme.particles) {
-        BitBlt(out, orc.left, orc.top, w, h, dc, 0, 0, SRCCOPY);
-        SelectObject(dc, obmp);
-        DeleteObject(bmp);
-        DeleteDC(dc);
-        return;
-    }
-
-    double tsec = (double)GetTickCount64() / 1000.0;
-    unsigned seed = 0x9E3779B9u;
-    for (int i = 0; i < 420; i++) {
-        seed = seed * 1664525u + 1013904223u;
-        unsigned r1 = (seed >> 8) & 0xFFFF;
-        seed = seed * 1664525u + 1013904223u;
-        unsigned r2 = (seed >> 8) & 0xFFFF;
-        seed = seed * 1664525u + 1013904223u;
-        unsigned r3 = (seed >> 8) & 0xFFFF;
-        /* anchor: average of two uniforms biases toward the focal center */
-        double fx = (((double)r1 / 65535.0) + ((double)r2 / 65535.0)) / 2.0;
-        double fy = (((double)r2 / 65535.0) + ((double)r3 / 65535.0)) / 2.0;
-        /* per-particle orbit: radius 3..15 px, speed 0.15..1.0 rad/s */
-        double orbit_r = 3.0 + (double)(r3 % 1200) / 100.0;
-        double speed = 0.15 + (double)(r1 % 85) / 100.0;
-        if (i & 1) speed = -speed;
-        double ang = speed * tsec + (double)(r2 % 628) / 100.0;
-        int x = rc.left + (int)(fx * w + orbit_r * cos(ang));
-        int y = rc.top + (int)(fy * h + orbit_r * 0.6 * sin(ang));
-        if (x < rc.left + 2 || x > rc.right - 7 || y < rc.top + 2 || y > rc.bottom - 7) continue;
-        int size = 2 + (int)(r3 % 4);
-        /* slow twinkle: each particle swells briefly on its own beat */
-        double tw = sin(tsec * 1.7 + (double)(i % 41));
-        if (tw > 0.86) size += 2;
-        else if (tw > 0.6) size += 1;
-        COLORREF c;
-        unsigned roll = r1 % 100;
-        if (roll < 52) c = blend(g_theme.text, g_theme.bg, 35 + (int)(r2 % 40));
-        else if (roll < 74) c = g_theme.accent;
-        else if (roll < 86) c = g_theme.lichen;
-        else if (roll < 94) c = g_theme.spark;
-        else c = g_theme.accent_br;
-        HBRUSH br = CreateSolidBrush(c);
-        switch (r2 % 3) {
-            case 0: { /* circle */
-                HPEN pen = CreatePen(PS_SOLID, 1, c);
-                HBRUSH ob = (HBRUSH)SelectObject(dc, br);
-                HPEN op = (HPEN)SelectObject(dc, pen);
-                Ellipse(dc, x, y, x + size, y + size);
-                SelectObject(dc, ob);
-                SelectObject(dc, op);
-                DeleteObject(pen);
-                break;
-            }
-            case 1: { /* square */
-                RECT pr = { x, y, x + size, y + size };
-                FillRect(dc, &pr, br);
-                break;
-            }
-            default: { /* diamond */
-                POINT pts[4] = { {x + size / 2, y}, {x + size, y + size / 2}, {x + size / 2, y + size}, {x, y + size / 2} };
-                HPEN pen = CreatePen(PS_SOLID, 1, c);
-                HBRUSH ob = (HBRUSH)SelectObject(dc, br);
-                HPEN op = (HPEN)SelectObject(dc, pen);
-                Polygon(dc, pts, 4);
-                SelectObject(dc, ob);
-                SelectObject(dc, op);
-                DeleteObject(pen);
-                break;
-            }
-        }
-        DeleteObject(br);
-    }
-    BitBlt(out, orc.left, orc.top, w, h, dc, 0, 0, SRCCOPY);
-    SelectObject(dc, obmp);
-    DeleteObject(bmp);
-    DeleteDC(dc);
 }
 
 /* ------------------------------------------------------------------ */
@@ -1303,7 +1363,6 @@ static void create_home(void) {
         g.card_wnd[i] = mk(L"STATIC", L"", SS_OWNERDRAW, ID_CARD_FIRST + i);
     }
     for (int i = 0; i < HOME_INFO; i++) g.home_info[i] = mk(L"STATIC", L"", 0, 0);
-    g.particle_canvas = mk(L"STATIC", L"", SS_OWNERDRAW, ID_PARTICLES);
 }
 
 static void create_sections(void) {
@@ -1312,11 +1371,7 @@ static void create_sections(void) {
     create_section_header(SEC_STORE, L"App store",
         L"Install, remove, and upgrade applications from the curated catalog — winget, scoop, choco, pip, npm, dotnet, PowerShell Gallery.");
     mk_search(SEC_STORE, L"Search 375 apps by name, category, or source…");
-    g.list[SEC_STORE] = mk_list(SEC_STORE);
-    lv_add_column(g.list[SEC_STORE], 0, L"Application", 230);
-    lv_add_column(g.list[SEC_STORE], 1, L"Category", 130);
-    lv_add_column(g.list[SEC_STORE], 2, L"Sources", 140);
-    lv_add_column(g.list[SEC_STORE], 3, L"Description", 340);
+    g.list[SEC_STORE] = mk_card_list(SEC_STORE);
     mk_action(SEC_STORE, L"Install", ID_BTN_STORE_INSTALL, true);
     mk_action(SEC_STORE, L"Uninstall", ID_BTN_STORE_UNINSTALL, false);
     mk_action(SEC_STORE, L"Upgrade", ID_BTN_STORE_UPGRADE, false);
@@ -1325,10 +1380,7 @@ static void create_sections(void) {
     create_section_header(SEC_APPS, L"Installed apps",
         L"Everything registered on this PC — the same data the classic Programs and Features panel shows.");
     mk_search(SEC_APPS, L"Search installed apps…");
-    g.list[SEC_APPS] = mk_list(SEC_APPS);
-    lv_add_column(g.list[SEC_APPS], 0, L"Application", 320);
-    lv_add_column(g.list[SEC_APPS], 1, L"Version", 110);
-    lv_add_column(g.list[SEC_APPS], 2, L"Publisher", 240);
+    g.list[SEC_APPS] = mk_card_list(SEC_APPS);
     mk_action(SEC_APPS, L"Uninstall", ID_BTN_APP_UNINSTALL, true);
     mk_action(SEC_APPS, L"Open location", ID_BTN_APP_LOCATION, false);
     mk_action(SEC_APPS, L"Refresh", ID_BTN_APP_REFRESH, false);
@@ -1336,16 +1388,9 @@ static void create_sections(void) {
     create_section_header(SEC_TWEAKS, L"Tweaks",
         L"Privacy and system tweaks. Select one, then apply, undo, or check its current state.");
     mk_search(SEC_TWEAKS, L"Search tweaks…");
-    g.list[SEC_TWEAKS] = mk_list(SEC_TWEAKS);
-    lv_add_column(g.list[SEC_TWEAKS], 0, L"Tweak", 230);
-    lv_add_column(g.list[SEC_TWEAKS], 1, L"Risk", 90);
-    lv_add_column(g.list[SEC_TWEAKS], 2, L"Reversible", 84);
-    lv_add_column(g.list[SEC_TWEAKS], 3, L"Status", 100);
-    lv_add_column(g.list[SEC_TWEAKS], 4, L"Description", 300);
+    g.list[SEC_TWEAKS] = mk_card_list(SEC_TWEAKS);
     mk_action(SEC_TWEAKS, L"Apply", ID_BTN_TWEAK_APPLY, true);
     mk_action(SEC_TWEAKS, L"Undo", ID_BTN_TWEAK_UNDO, false);
-    mk_action(SEC_TWEAKS, L"Check status", ID_BTN_TWEAK_DETECT, false);
-    mk_action(SEC_TWEAKS, L"Check all", ID_BTN_TWEAK_DETECT_ALL, false);
 
     create_section_header(SEC_FEATURES, L"Windows features",
         L"Enable or disable optional Windows features (WSL, Hyper-V, Sandbox…). Changes may require a reboot.");
@@ -1355,7 +1400,6 @@ static void create_sections(void) {
     lv_add_column(g.list[SEC_FEATURES], 2, L"Description", 420);
     mk_action(SEC_FEATURES, L"Enable", ID_BTN_FEATURE_ENABLE, true);
     mk_action(SEC_FEATURES, L"Disable", ID_BTN_FEATURE_DISABLE, false);
-    mk_action(SEC_FEATURES, L"Check status", ID_BTN_FEATURE_DETECT, false);
 
     create_section_header(SEC_SERVICES, L"Services",
         L"Start, stop, and reconfigure Windows services. Changing services usually requires running Phantom as administrator.");
@@ -1402,19 +1446,13 @@ static void create_sections(void) {
     g.upd_radio[2] = mk_radio(L"Disable all — stop and disable update services (dangerous)", ID_RADIO_UPDATE_DISABLE, 0);
     SendMessageW(g.upd_radio[0], BM_SETCHECK, BST_CHECKED, 0);
     mk_action(SEC_UPDATES, L"Apply mode", ID_BTN_UPDATE_APPLY, true);
-    mk_action(SEC_UPDATES, L"Check current mode", ID_BTN_UPDATE_DETECT, false);
 
     /* Settings: appearance + safety + automation + about */
     create_section_header(SEC_SETTINGS, L"Settings",
         L"Appearance, safety options, unattended automation, and information about this build.");
 
-    g.set_head[0] = mk(L"STATIC", L"APPEARANCE", 0, 0);
+    g.set_head[0] = mk(L"STATIC", L"APPEARANCE — ACCENT COLOR", 0, 0);
     SendMessageW(g.set_head[0], WM_SETFONT, (WPARAM)g.font_group, TRUE);
-    g.theme_combo = mk(L"COMBOBOX", L"", CBS_DROPDOWNLIST | WS_VSCROLL, ID_COMBO_THEME);
-    SendMessageW(g.theme_combo, CB_ADDSTRING, 0, (LPARAM)L"Verdant — dark green");
-    SendMessageW(g.theme_combo, CB_ADDSTRING, 0, (LPARAM)L"Void — black · violet");
-    SendMessageW(g.theme_combo, CB_SETCURSEL, (WPARAM)g.theme_id, 0);
-    SetWindowTheme(g.theme_combo, L"DarkMode_CFD", NULL);
     g.accent_combo = mk(L"COMBOBOX", L"", CBS_DROPDOWNLIST | WS_VSCROLL, ID_COMBO_ACCENT);
     SendMessageW(g.accent_combo, CB_ADDSTRING, 0, (LPARAM)L"Theme accent");
     SendMessageW(g.accent_combo, CB_ADDSTRING, 0, (LPARAM)L"Windows accent");
@@ -1565,7 +1603,6 @@ static void show_section_controls(int sec, BOOL show) {
         case SEC_HOME:
             for (int i = 0; i < HOME_CARDS; i++) ShowWindow(g.card_wnd[i], cmd);
             for (int i = 0; i < HOME_INFO; i++) ShowWindow(g.home_info[i], cmd);
-            ShowWindow(g.particle_canvas, cmd);
             break;
         case SEC_SERVICES:
             ShowWindow(g.svc_combo, cmd);
@@ -1576,7 +1613,7 @@ static void show_section_controls(int sec, BOOL show) {
         case SEC_SETTINGS:
             for (int i = 0; i < 4; i++) ShowWindow(g.set_head[i], cmd);
             for (int i = 0; i < 3; i++) ShowWindow(g.set_chk[i], cmd);
-            ShowWindow(g.theme_combo, cmd); ShowWindow(g.accent_combo, cmd);
+            ShowWindow(g.accent_combo, cmd);
             ShowWindow(g.accent_hex, cmd);
             ShowWindow(g.auto_path, cmd); ShowWindow(g.auto_browse, cmd);
             ShowWindow(g.auto_force, cmd); ShowWindow(g.auto_ack_label, cmd);
@@ -1654,16 +1691,8 @@ static void layout(void) {
         MoveWindow(g.card_wnd[i], cx, body_y, w, 88, TRUE);
         cx += w + 14;
     }
-    {
-        int info_w = content_w * 52 / 100;
-        for (int i = 0; i < HOME_INFO; i++)
-            MoveWindow(g.home_info[i], content_x + 2, body_y + 110 + i * 27, info_w, 24, TRUE);
-        int px = content_x + info_w + 24;
-        int ph = (console_top - 56) - (body_y + 104);
-        if (ph < 120) ph = 120;
-        MoveWindow(g.particle_canvas, px, body_y + 104, content_x + content_w - px, ph, TRUE);
-        ph_d2d_resize(content_x + content_w - px, ph);
-    }
+    for (int i = 0; i < HOME_INFO; i++)
+        MoveWindow(g.home_info[i], content_x + 2, body_y + 110 + i * 27, content_w, 24, TRUE);
 
     /* Search rows */
     for (int sec = 0; sec < SEC_COUNT; sec++) {
@@ -1676,6 +1705,7 @@ static void layout(void) {
         if (!g.list[sec]) continue;
         int ly = g.search[sec] ? body_y + 38 : body_y;
         MoveWindow(g.list[sec], content_x, ly, content_w, btn_y - ly - 12, TRUE);
+        if (is_card_list(sec)) ListView_SetColumnWidth(g.list[sec], 0, content_w - 28);
     }
 
     /* Button rows */
@@ -1697,10 +1727,9 @@ static void layout(void) {
     int sy = body_y;
     MoveWindow(g.set_head[0], content_x, sy, content_w, 18, TRUE);
     sy += 22;
-    MoveWindow(g.theme_combo, content_x, sy, 200, 200, TRUE);
-    MoveWindow(g.accent_combo, content_x + 212, sy, 160, 200, TRUE);
-    MoveWindow(g.accent_hex, content_x + 384, sy, 100, 26, TRUE);
-    MoveWindow(g.buttons[SEC_SETTINGS][3], content_x + 496, sy - 1, 120, 28, TRUE);
+    MoveWindow(g.accent_combo, content_x, sy, 170, 200, TRUE);
+    MoveWindow(g.accent_hex, content_x + 182, sy, 100, 26, TRUE);
+    MoveWindow(g.buttons[SEC_SETTINGS][3], content_x + 294, sy - 1, 120, 28, TRUE);
     sy += 38;
     MoveWindow(g.set_head[1], content_x, sy, content_w, 18, TRUE);
     sy += 22;
@@ -1751,6 +1780,11 @@ static const ph_catalog_entry *selected_entry(int sec, const entry_list *list, i
     if (sec == SEC_STORE) {
         if (item >= g.store_filter_count) return NULL;
         return &g.apps.items[g.store_filter[item]];
+    }
+    if (sec == SEC_TWEAKS) {
+        if (item >= g.tweak_filter_count) return NULL;
+        if (item_out) *item_out = g.tweak_filter[item]; /* catalog index */
+        return &g.tweaks.items[g.tweak_filter[item]];
     }
     if (item >= list->count) return NULL;
     return &list->items[item];
@@ -1853,6 +1887,44 @@ static void start_service_job(const char *action) {
     start_job(&j);
 }
 
+/* Legacy panels launch natively: the catalog scripts are all
+ * "Start-Process <file>.cpl|.msc", which the hidden non-interactive
+ * PowerShell host cannot reliably ShellExecute. .cpl goes through
+ * control.exe and .msc through mmc.exe with a full System32 path. */
+static void open_legacy_panel(void) {
+    int item = lv_selected(g.list[SEC_PANELS]);
+    if (item < 0 || item >= g.panels.count) { set_status_text(L"Select a panel first."); return; }
+    ph_error err = {0};
+    ph_operation op;
+    if (!ph_make_panel_operation(g.panels.items[item].id, &op, &err)) { post_logf("%s", err.message); return; }
+    const char *script = op.run[0].script;
+    const char *target = script;
+    if (strncmp(target, "Start-Process ", 14) == 0) target += 14;
+    while (*target == ' ' || *target == '\'' || *target == '"') target++;
+    char file[256];
+    size_t j = 0;
+    for (const char *q = target; *q && *q != ' ' && *q != '\'' && *q != '"' && j + 1 < sizeof file; q++) file[j++] = *q;
+    file[j] = '\0';
+    if (!file[0]) { post_logf("panel %s: empty launch target", op.id); return; }
+
+    wchar_t wfile[256];
+    MultiByteToWideChar(CP_UTF8, 0, file, -1, wfile, 256);
+    wchar_t sysdir[MAX_PATH], full[MAX_PATH + 260];
+    GetSystemDirectoryW(sysdir, MAX_PATH);
+    _snwprintf(full, MAX_PATH + 260, L"%s\\%s", sysdir, wfile);
+
+    HINSTANCE r;
+    size_t len = wcslen(wfile);
+    if (len > 4 && _wcsicmp(wfile + len - 4, L".cpl") == 0)
+        r = ShellExecuteW(g.wnd, L"open", L"control.exe", full, NULL, SW_SHOWNORMAL);
+    else if (len > 4 && _wcsicmp(wfile + len - 4, L".msc") == 0)
+        r = ShellExecuteW(g.wnd, L"open", L"mmc.exe", full, NULL, SW_SHOWNORMAL);
+    else
+        r = ShellExecuteW(g.wnd, L"open", full, NULL, NULL, SW_SHOWNORMAL);
+    if ((INT_PTR)r <= 32) post_logf("failed to open %s (ShellExecute=%d)", file, (int)(INT_PTR)r);
+    else post_logf("opened %s", file);
+}
+
 static void start_update_job(bool detect) {
     const char *mode = "Default";
     if (SendMessageW(g.upd_radio[1], BM_GETCHECK, 0, 0) == BST_CHECKED) mode = "Security";
@@ -1915,25 +1987,17 @@ static void on_command(WORD id, WORD code) {
         if (sec == SEC_STORE) fill_store();
         else if (sec == SEC_APPS) fill_installed_apps();
         else if (sec == SEC_SERVICES) fill_services();
+        else if (sec == SEC_TWEAKS) fill_tweaks();
         return;
     }
     switch (id) {
         case ID_BTN_TWEAK_APPLY:   start_catalog_job(SEC_TWEAKS, &g.tweaks, ph_make_tweak_operation, JOB_OPERATION, false); break;
         case ID_BTN_TWEAK_UNDO:    start_catalog_job(SEC_TWEAKS, &g.tweaks, ph_make_tweak_operation, JOB_OPERATION, true); break;
-        case ID_BTN_TWEAK_DETECT:  start_catalog_job(SEC_TWEAKS, &g.tweaks, ph_make_tweak_operation, JOB_DETECT, false); break;
-        case ID_BTN_TWEAK_DETECT_ALL: {
-            job j;
-            job_defaults(&j);
-            j.kind = JOB_DETECT_ALL;
-            start_job(&j);
-            break;
-        }
         case ID_BTN_FEATURE_ENABLE:  start_catalog_job(SEC_FEATURES, &g.features, ph_make_feature_operation, JOB_OPERATION, false); break;
         case ID_BTN_FEATURE_DISABLE: start_catalog_job(SEC_FEATURES, &g.features, ph_make_feature_operation, JOB_OPERATION, true); break;
-        case ID_BTN_FEATURE_DETECT:  start_catalog_job(SEC_FEATURES, &g.features, ph_make_feature_operation, JOB_DETECT, false); break;
         case ID_BTN_FIX_RUN:  start_catalog_job(SEC_FIXES, &g.fixes, ph_make_fix_operation, JOB_OPERATION, false); break;
         case ID_BTN_FIX_UNDO: start_catalog_job(SEC_FIXES, &g.fixes, ph_make_fix_operation, JOB_OPERATION, true); break;
-        case ID_BTN_PANEL_OPEN: start_catalog_job(SEC_PANELS, &g.panels, ph_make_panel_operation, JOB_OPERATION, false); break;
+        case ID_BTN_PANEL_OPEN: open_legacy_panel(); break;
         case ID_BTN_STORE_INSTALL:   start_store_job("install"); break;
         case ID_BTN_STORE_UNINSTALL: start_store_job("uninstall"); break;
         case ID_BTN_STORE_UPGRADE:   start_store_job("upgrade"); break;
@@ -1947,21 +2011,14 @@ static void on_command(WORD id, WORD code) {
         case ID_BTN_SVC_SET_STARTUP: start_service_job("set-startup"); break;
         case ID_BTN_SVC_REFRESH: reload_services(); fill_home_info(); break;
         case ID_BTN_UPDATE_APPLY:  start_update_job(false); break;
-        case ID_BTN_UPDATE_DETECT: start_update_job(true); break;
         case ID_BTN_AUTO_BROWSE: browse_config(); break;
         case ID_BTN_AUTO_DRYRUN: start_automation(true); break;
         case ID_BTN_AUTO_RUN:    start_automation(false); break;
         case ID_BTN_ABOUT_GITHUB: ShellExecuteW(g.wnd, L"open", PHANTOM_REPO_URL, NULL, NULL, SW_SHOWNORMAL); break;
-        case ID_COMBO_THEME:
-            if (code == CBN_SELCHANGE) {
-                apply_theme((int)SendMessageW(g.theme_combo, CB_GETCURSEL, 0, 0));
-                save_settings();
-            }
-            break;
         case ID_COMBO_ACCENT:
             if (code == CBN_SELCHANGE) {
                 g.accent_mode = (int)SendMessageW(g.accent_combo, CB_GETCURSEL, 0, 0);
-                apply_theme(g.theme_id);
+                apply_theme();
                 save_settings();
             }
             break;
@@ -1975,7 +2032,7 @@ static void on_command(WORD id, WORD code) {
             g.accent_custom = c;
             g.accent_mode = PH_ACCENT_CUSTOM;
             SendMessageW(g.accent_combo, CB_SETCURSEL, PH_ACCENT_CUSTOM, 0);
-            apply_theme(g.theme_id);
+            apply_theme();
             save_settings();
             break;
         }
@@ -2010,16 +2067,22 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT msg, WPARAM wp, LPARAM lp) {
         case WM_NOTIFY: {
             LPNMHDR hdr = (LPNMHDR)lp;
             if (hdr->code == NM_CUSTOMDRAW && hdr->idFrom >= 900 && hdr->idFrom < 900 + SEC_COUNT) {
+                int sec = (int)hdr->idFrom - 900;
                 LPNMLVCUSTOMDRAW cd = (LPNMLVCUSTOMDRAW)lp;
                 switch (cd->nmcd.dwDrawStage) {
                     case CDDS_PREPAINT:
                         return CDRF_NOTIFYITEMDRAW;
-                    case CDDS_ITEMPREPAINT: {
-                        bool sel = (ListView_GetItemState(hdr->hwndFrom, (int)cd->nmcd.dwItemSpec, LVIS_SELECTED) & LVIS_SELECTED) != 0;
-                        cd->clrText = CLR_TEXT;
-                        cd->clrTextBk = sel ? CLR_ROW_SEL : ((cd->nmcd.dwItemSpec & 1) ? CLR_ROW_ALT : CLR_ROW);
-                        return CDRF_NEWFONT;
-                    }
+                    case CDDS_ITEMPREPAINT:
+                        if (is_card_list(sec)) {
+                            draw_card_row(sec, cd);
+                            return CDRF_SKIPDEFAULT;
+                        }
+                        {
+                            bool sel = (ListView_GetItemState(hdr->hwndFrom, (int)cd->nmcd.dwItemSpec, LVIS_SELECTED) & LVIS_SELECTED) != 0;
+                            cd->clrText = CLR_TEXT;
+                            cd->clrTextBk = sel ? CLR_ROW_SEL : ((cd->nmcd.dwItemSpec & 1) ? CLR_ROW_ALT : CLR_ROW);
+                            return CDRF_NEWFONT;
+                        }
                 }
             }
             break;
@@ -2029,10 +2092,6 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT msg, WPARAM wp, LPARAM lp) {
             if (dis->CtlID >= ID_NAV_FIRST && dis->CtlID < ID_NAV_FIRST + SEC_COUNT) draw_nav_button(dis);
             else if (dis->CtlID >= ID_CARD_FIRST && dis->CtlID < ID_CARD_FIRST + HOME_CARDS) draw_home_card(dis);
             else if (dis->CtlID == ID_BADGE) draw_badge(dis);
-            else if (dis->CtlID == ID_PARTICLES) {
-                if (ph_d2d_active()) d2d_render_constellation();
-                else draw_particles(dis);
-            }
             else if (dis->CtlType == ODT_BUTTON) draw_action_button(dis);
             else if (dis->CtlType == ODT_STATIC) draw_nav_group(dis, dis->hwndItem);
             return TRUE;
@@ -2079,15 +2138,9 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT msg, WPARAM wp, LPARAM lp) {
         }
         case WM_TIMER:
             if (wp == IDT_TICK) update_live_tiles();
-            else if (wp == IDT_ANIM) {
-                if (g.nav_anim_start) {
-                    InvalidateRect(g.nav[g.active], NULL, FALSE);
-                    if (nav_anim_progress() >= 1.0) g.nav_anim_start = 0;
-                }
-                if (g.active == SEC_HOME && g_theme.particles && g.particle_canvas) {
-                    if (ph_d2d_active()) d2d_render_constellation();
-                    else InvalidateRect(g.particle_canvas, NULL, FALSE);
-                }
+            else if (wp == IDT_ANIM && g.nav_anim_start) {
+                InvalidateRect(g.nav[g.active], NULL, FALSE);
+                if (nav_anim_progress() >= 1.0) g.nav_anim_start = 0;
             }
             return 0;
         case WM_COMMAND:
@@ -2099,12 +2152,23 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT msg, WPARAM wp, LPARAM lp) {
             return 0;
         case WM_APP_STATUS: {
             int sec = LOWORD(wp), item = HIWORD(wp);
-            int col = (sec == SEC_TWEAKS) ? 3 : (sec == SEC_FEATURES) ? 1 : -1;
-            if (col >= 0 && g.list[sec])
-                ListView_SetItemText(g.list[sec], item, col, (LPWSTR)lp);
+            if (sec == SEC_TWEAKS && item >= 0 && item < 64) {
+                char st[24];
+                wide_to_utf8((const wchar_t *)lp, st, sizeof st);
+                snprintf(g.tweak_status[item], sizeof g.tweak_status[item], "%s", st);
+                if (g.list[SEC_TWEAKS]) InvalidateRect(g.list[SEC_TWEAKS], NULL, FALSE);
+            } else if (sec == SEC_FEATURES && g.list[sec]) {
+                ListView_SetItemText(g.list[sec], item, 1, (LPWSTR)lp);
+            }
             free((void *)lp);
             return 0;
         }
+        case WM_APP_UPDMODE:
+            if (wp < 3) {
+                for (int i = 0; i < 3; i++)
+                    SendMessageW(g.upd_radio[i], BM_SETCHECK, (WPARAM)i == wp ? BST_CHECKED : BST_UNCHECKED, 0);
+            }
+            return 0;
         case WM_APP_DONE:
             if (g.worker) { CloseHandle(g.worker); g.worker = NULL; }
             InterlockedExchange(&g.busy, 0);
@@ -2116,7 +2180,7 @@ static LRESULT CALLBACK wnd_proc(HWND wnd, UINT msg, WPARAM wp, LPARAM lp) {
             return 0;
         case WM_DESTROY:
             save_settings();
-            ph_d2d_shutdown();
+            InterlockedExchange(&g.sweep_stop, 1);
             KillTimer(wnd, IDT_TICK);
             KillTimer(wnd, IDT_ANIM);
             PostQuitMessage(0);
@@ -2168,7 +2232,8 @@ static bool load_catalogs(void) {
         return false;
     }
     g.store_filter = (int *)calloc((size_t)(g.apps.count ? g.apps.count : 1), sizeof *g.store_filter);
-    return g.store_filter != NULL;
+    g.tweak_filter = (int *)calloc((size_t)(g.tweaks.count ? g.tweaks.count : 1), sizeof *g.tweak_filter);
+    return g.store_filter != NULL && g.tweak_filter != NULL;
 }
 
 static HFONT make_font(int height, int weight, const wchar_t *face) {
@@ -2197,8 +2262,8 @@ static void rebuild_theme_resources(void) {
     g.br_input = CreateSolidBrush(CLR_INPUT);
     if (g.font_title) DeleteObject(g.font_title);
     if (g.font_big) DeleteObject(g.font_big);
-    g.font_title = make_font(-22, g_theme.title_weight, L"Segoe UI");
-    g.font_big = make_font(g_theme.particles ? -36 : -30, g_theme.display_weight, L"Segoe UI");
+    g.font_title = make_font(-22, FW_SEMIBOLD, L"Segoe UI");
+    g.font_big = make_font(-30, FW_LIGHT, L"Segoe UI");
     for (int sec = 0; sec < SEC_COUNT; sec++)
         if (g.section_title[sec]) SendMessageW(g.section_title[sec], WM_SETFONT, (WPARAM)g.font_title, TRUE);
 }
@@ -2243,7 +2308,7 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE prev, PWSTR cmdline, int show) {
     if (!load_catalogs()) return 1;
 
     load_settings();
-    g_theme = PH_THEMES[g.theme_id];
+    g_theme = PH_THEME_VERDANT_DEF;
     apply_accent_override();
     create_resources();
     init_log_file();
@@ -2283,14 +2348,14 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE prev, PWSTR cmdline, int show) {
     fill_home_info();
     update_live_tiles();
 
-    bool gpu = ph_d2d_init(g.particle_canvas);
-    apply_theme(g.theme_id);
+    apply_theme();
     g.active = SEC_HOME;
     select_section(SEC_HOME);
     SetTimer(g.wnd, IDT_TICK, 1000, NULL);
     SetTimer(g.wnd, IDT_ANIM, 33, NULL);
+    g.sweep = CreateThread(NULL, 0, sweep_main, NULL, 0, NULL);
+    if (g.sweep) SetThreadPriority(g.sweep, THREAD_PRIORITY_BELOW_NORMAL);
     post_logf("Phantom %ls ready — catalogs verified, %d apps / %d tweaks loaded.", PHANTOM_VERSION, g.apps.count, g.tweaks.count);
-    post_logf("constellation renderer: %s", gpu ? "Direct2D (GPU, antialiased, vsync)" : "GDI (software fallback)");
 
     layout();
     ShowWindow(g.wnd, show);

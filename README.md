@@ -37,13 +37,13 @@ and run `PhantomC.exe`.
 | **Windows Update** | Default / security-focused / fully disabled update policy |
 | **Automation** | Run a JSON config unattended — installs, tweaks, fixes, and update mode in one pass |
 
-Two design languages ship in one binary, switchable live from Settings →
-Appearance: **Verdant** (the dark green-tinted language of the original WPF
-app) and **Void** (cosmic minimalism — pure-black canvas, hairline borders,
-pill geometry, thin display type, a violet accent, and a particle
-constellation on Home). The accent color is also user-controlled: theme
-default, your Windows accent, or any custom hex — all persisted across
-sessions.
+The interface uses a dark card-based design: a live Home dashboard with a
+stopwatch uptime, Wintoys-style card rows for tweaks, store, and installed
+apps, animated navigation, and an embedded timestamped console. Tweak,
+feature, and update-mode states are detected automatically in the background
+shortly after launch — no manual "check status" needed. The accent color is
+user-controlled (theme default, Windows accent, or custom hex) and persists
+across sessions.
 
 A console CLI (`phantom-cli.exe`) ships alongside the GUI for scripted and
 CI use:
